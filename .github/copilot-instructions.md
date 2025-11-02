@@ -1,6 +1,8 @@
-# AI Rules for {{project-name}}
+# AI Rules for KudoSpace
 
-{{project-description}}
+## Project Description
+
+KudoSpace is a Minimum Viable Product (MVP) web application designed to provide a simple, visible way for team members to show appreciation for each other, especially in remote work settings. It features a single, public kudos board where users can post messages of gratitude for their colleagues. The core functionality includes user authentication via a social provider, creating and deleting kudos, and an optional AI-powered feature to help generate message content. The MVP is scoped for a single team/company and prioritizes simplicity and ease of use, built with a modern tech stack (Astro, React, Supabase) for rapid development.
 
 ## Tech Stack
 

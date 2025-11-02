@@ -1,94 +1,169 @@
-# 10x Astro Starter
+# KudoSpace
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+> A simple, visible way for team members to show appreciation for each other
 
-## Tech Stack
+## 📋 Table of Contents
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+- [Project Description](#-project-description)
+- [Tech Stack](#-tech-stack)
+- [Getting Started Locally](#-getting-started-locally)
+- [Available Scripts](#-available-scripts)
+- [Project Scope](#-project-scope)
+- [Project Status](#-project-status)
+- [License](#-license)
 
-## Prerequisites
+## 📖 Project Description
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+KudoSpace is a Minimum Viable Product (MVP) web application designed to provide a simple, visible way for team members to show appreciation for each other, especially in remote work settings. It features a single, public kudos board where users can post messages of gratitude for their colleagues.
 
-## Getting Started
+### The Problem
 
-1. Clone the repository:
+In many teams, particularly those working remotely, there is a lack of informal but visible channels for expressing appreciation for a colleague's work or assistance. These small but significant gestures of gratitude often go unnoticed, which can negatively impact team morale, motivation, and the overall company culture.
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+### The Solution
 
-2. Install dependencies:
+KudoSpace creates a centralized and visible platform for sharing praise, enabling team members to:
 
-```bash
-npm install
-```
+- **Authenticate easily** using social providers (Google or GitHub)
+- **Give kudos** to colleagues with personalized messages
+- **View all kudos** on a single, shared board
+- **Generate messages** using AI assistance (optional)
+- **Manage their kudos** by deleting their own entries
 
-3. Run the development server:
+## 🛠 Tech Stack
 
-```bash
-npm run dev
-```
+### Frontend
 
-4. Build for production:
+- **[Astro 5](https://astro.build/)** - Fast, efficient sites with minimal JavaScript
+- **[React 19](https://react.dev/)** - Interactive components where needed
+- **[TypeScript 5](https://www.typescriptlang.org/)** - Static typing and improved IDE support
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[shadcn/ui](https://ui.shadcn.com/)** - Accessible React component library
 
-```bash
-npm run build
-```
+### Backend
 
-## Available Scripts
+- **[Supabase](https://supabase.com/)** - All-in-one backend solution
+  - PostgreSQL database
+  - Built-in user authentication
+  - Backend-as-a-Service SDKs
+  - Open-source and self-hostable
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+### AI Integration
 
-## Project Structure
+- **[OpenRouter.ai](https://openrouter.ai/)** - AI model access
+  - Access to multiple AI providers (OpenAI, Anthropic, Google, and others)
+  - Cost-effective model selection
+  - API key spending limits
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### CI/CD and Hosting
 
-## AI Development Support
+- **GitHub Actions** - CI/CD pipelines
+- **DigitalOcean** - Docker-based application hosting
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+## 🚀 Getting Started Locally
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+### Prerequisites
 
-### Cursor IDE
+- **Node.js**: Version 22.14.0 (specified in `.nvmrc`)
+- **npm** or **yarn** package manager
+- **Supabase account** for backend services
+- **OpenRouter.ai API key** (optional, for AI features)
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+### Installation
 
-### GitHub Copilot
+1. **Clone the repository**
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+   ```bash
+   git clone https://github.com/kuba-kowalczyk-allegro/kudo-space.git
+   cd kudo-space
+   ```
 
-### Windsurf
+2. **Install Node.js version**
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
+   If you use `nvm`:
 
-## Contributing
+   ```bash
+   nvm use
+   ```
 
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+3. **Install dependencies**
 
-## License
+   ```bash
+   npm install
+   ```
 
-MIT
+4. **Set up environment variables**
+
+   Create a `.env` file in the root directory with the following variables:
+
+   ```env
+   # Supabase Configuration
+   PUBLIC_SUPABASE_URL=your_supabase_project_url
+   PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # OpenRouter.ai Configuration (optional)
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   ```
+
+5. **Set up Supabase**
+
+   - Create a new Supabase project
+   - Configure authentication with your preferred social provider (Google or GitHub)
+   - Set up the database schema (refer to project documentation)
+
+6. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+   The application should now be running at `http://localhost:3000`
+
+## 📜 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start the development server with hot reload |
+| `npm run build` | Build the production-ready application |
+| `npm run preview` | Preview the production build locally |
+| `npm run astro` | Run Astro CLI commands |
+| `npm run lint` | Run ESLint to check for code issues |
+| `npm run lint:fix` | Run ESLint and automatically fix issues |
+| `npm run format` | Format code using Prettier |
+
+## 🎯 Project Scope
+
+### ✅ In Scope
+
+- User authentication via a single social provider (Google or GitHub)
+- A single, shared kudos board visible to all users
+- Full CRUD functionality for kudos:
+  - **Create**: Give kudos to team members
+  - **Read**: View all kudos on the board
+  - **Delete**: Remove your own kudos (cannot delete others' kudos)
+- Optional AI-powered message generation based on 3-15 keywords
+- Clean, minimalist user interface
+- Single instance for one team/company
+
+### ❌ Out of Scope
+
+- Multiple or private boards for different teams or topics
+- Systems for points, rankings, or rewards
+- Real-time notifications
+- Integrations with chat platforms (e.g., Slack, Teams)
+- Editing existing kudos
+- Advanced user profiles or statistics
+- Activity dashboards
+- Formal user feedback mechanisms for AI feature quality
+
+## 📊 Project Status
+
+**Current Status**: MVP Development
+
+## 📄 License
+
+This project is licensed under the terms specified in the repository. Please refer to the LICENSE file for more information.
+
+---
+
+**Built with ❤️ for remote teams**
