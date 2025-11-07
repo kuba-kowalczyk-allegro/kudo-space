@@ -18,7 +18,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 - FR-006: Kudo Creation Form: The creation form must include a recipient selector (dropdown/autocomplete), a message text area, and a submission button.
 - FR-007: Delete Kudos: Users must be able to delete kudos they have created. They cannot delete kudos created by other users.
 - FR-008: AI Content Generation: The application will provide an optional feature to generate a kudo message using an AI service (OpenRouter.ai).
-- FR-009: AI Keyword Input: The AI generation feature will accept 3-15 keywords as input to create a concise (2-3 sentences), positive, and informal message.
+- FR-009: AI Prompt Input: The AI generation feature will accept a short prompt (10-200 characters) describing what the user wants to thank someone for, and will generate a concise (2-3 sentences), positive, and informal message based on that prompt.
 - FR-010: AI Error Handling: If the AI service is unavailable, the user will be shown a non-blocking error message and can proceed to write the kudo manually.
 
 ## 4. Product Boundaries
@@ -28,7 +28,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 - User authentication via a single social provider.
 - A single, shared kudos board visible to all users.
 - Full CRUD (Create, Read, Delete) functionality for kudos, with the limitation that users can only delete their own.
-- An optional AI-powered message generation feature based on keywords.
+- An optional AI-powered message generation feature based on a user prompt.
 - A clean, minimalist user interface.
 - The application operates as a single instance for one team.
 
@@ -89,11 +89,11 @@ In many teams, particularly those working remotely, there is a lack of informal 
 ### US-005: AI-Powered Message Generation
 
 - Title: Use AI to Generate a Kudo Message
-- Description: As a user, I want an optional AI assistant to help me write a kudo message based on a few keywords, so I can express my gratitude more easily and creatively.
+- Description: As a user, I want an optional AI assistant to help me write a kudo message based on a short description, so I can express my gratitude more easily and creatively.
 - Acceptance Criteria:
   - In the kudo creation form, there is a "Generate with AI" button next to the message field.
-  - The user can input 3-15 keywords related to the kudo.
-  - Clicking the button sends the keywords to the OpenRouter.ai service.
+  - The user can input a short prompt (e.g., "John helped me with debugging and documentation") describing what they want to thank someone for.
+  - Clicking the button sends the prompt to the OpenRouter.ai service.
   - The AI-generated message (2-3 sentences, positive, informal) populates the "Message" text area.
   - The user can then edit the generated message before submitting the kudo.
 
@@ -119,6 +119,6 @@ In many teams, particularly those working remotely, there is a lack of informal 
 ## 6. Success Metrics
 
 - Metric-001: Core Functionality: The application successfully allows users to log in, create kudos for other users, view all kudos on the board, and delete their own kudos.
-- Metric-002: AI Feature Utility: The AI content generation feature is functional and provides sensible, context-appropriate suggestions based on user-provided keywords. For the MVP, the "usefulness" will be judged subjectively by the development team, without a formal user feedback mechanism.
+- Metric-002: AI Feature Utility: The AI content generation feature is functional and provides sensible, context-appropriate suggestions based on user-provided prompts. For the MVP, the "usefulness" will be judged subjectively by the development team, without a formal user feedback mechanism.
 - Metric-003: User Adoption: The application is successfully deployed and used by a small team, with kudos being actively created and viewed.
 - Metric-004: Stability: The application runs without critical errors, and core features like authentication and kudo creation are consistently available.
