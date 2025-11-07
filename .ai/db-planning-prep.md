@@ -44,18 +44,21 @@
 ## Matched Recommendations
 
 ### User Management
+
 - Use Supabase's `auth.users` for authentication and separate `public.profiles` for application data
 - Store `id` (UUID), `display_name` (text, NOT NULL), `avatar_url` (text, nullable), `email` (text, nullable), `created_at`, `updated_at` in profiles
 - Add `email` field for display purposes to help differentiate users with similar names
 - Ensure one profile per auth user with PRIMARY KEY constraint
 
 ### Kudos Entity
+
 - Structure: `id` (UUID PK), `sender_id` (UUID FK), `recipient_id` (UUID FK), `message` (text, NOT NULL), `created_at`, `updated_at`
 - CHECK constraint: `sender_id != recipient_id` to prevent self-kudos
 - Character length constraint: 1-1000 characters for message field
 - Skip `is_ai_generated` flag for MVP simplicity
 
 ### Indexing Strategy
+
 - `kudos(created_at DESC)` - primary use case for board display
 - `kudos(sender_id)` - query optimization
 - `kudos(recipient_id)` - query optimization
@@ -65,21 +68,25 @@
 ### Security (RLS Policies)
 
 **Profiles Table:**
+
 - SELECT: All authenticated users can read all profiles
 - INSERT: Only via trigger (new user signup)
 - UPDATE: Users can update only their own profile (`auth.uid() = id`)
 - DELETE: Service role only or CASCADE from auth.users
 
 **Kudos Table:**
+
 - SELECT: All authenticated users can read all kudos (public board requirement)
 - INSERT: Authenticated users where `sender_id = auth.uid()`
 - UPDATE: Disabled (not in scope per FR-007)
 - DELETE: Users can delete where `sender_id = auth.uid()`
 
 **Kudos_with_users View:**
+
 - SELECT: All authenticated users
 
 ### Data Integrity
+
 - FOREIGN KEY constraints with ON DELETE CASCADE
 - NOT NULL constraints on critical fields
 - CHECK constraints for business rules
@@ -87,11 +94,13 @@
 - Use `timestamptz` for all timestamp fields
 
 ### Automation
+
 - Trigger function to auto-create profiles from `auth.users.raw_user_meta_data` on signup
 - Trigger to auto-update `updated_at` on profile modifications
 - Cascade deletions to maintain referential integrity
 
 ### Performance & Simplification
+
 - Create `kudos_with_users` view for simplified queries joining kudos with user details
 - Use hard deletes (no soft delete overhead)
 - Use declarative CHECK constraints over functions for simple validations
@@ -100,11 +109,13 @@
 ## Database Planning Summary
 
 ### Overview
+
 The KudoSpace MVP requires a simple PostgreSQL database schema optimized for a single-team kudos board. The design follows Supabase best practices, separating authentication concerns from application data while maintaining strong data integrity and security through Row Level Security (RLS) policies.
 
 ### Key Entities and Relationships
 
 **1. Profiles Table (`public.profiles`)**
+
 - Extends Supabase's `auth.users` with application-specific data
 - One-to-one relationship with `auth.users` (id as PK/FK)
 - Stores display information: display_name, avatar_url, email
@@ -112,6 +123,7 @@ The KudoSpace MVP requires a simple PostgreSQL database schema optimized for a s
 - Tracks creation and modification timestamps
 
 **2. Kudos Table (`public.kudos`)**
+
 - Core entity representing gratitude messages
 - Many-to-one relationship with profiles (sender)
 - Many-to-one relationship with profiles (recipient)
@@ -120,11 +132,13 @@ The KudoSpace MVP requires a simple PostgreSQL database schema optimized for a s
 - Tracks creation timestamp (updates not allowed)
 
 **3. Kudos_with_users View (`public.kudos_with_users`)**
+
 - Denormalized view joining kudos with sender and recipient profiles
 - Simplifies API queries and ensures consistent data fetching
 - Includes all necessary display fields (names, avatars, message, timestamp)
 
 ### Relationships Summary
+
 ```
 auth.users (1) ←→ (1) profiles
 profiles (1) ←→ (many) kudos [as sender]
@@ -134,16 +148,19 @@ profiles (1) ←→ (many) kudos [as recipient]
 ### Security Considerations
 
 **Authentication:**
+
 - Leverages Supabase Auth with social provider (Google/GitHub)
 - User identity managed by `auth.users`, extended by `profiles`
 
 **Row Level Security:**
+
 - All tables have RLS enabled
 - Profiles: Public read, restricted write (own profile only)
 - Kudos: Public read for authenticated users, write/delete own kudos only
 - Policies enforce business rules at database level
 
 **Data Integrity:**
+
 - Foreign key constraints prevent orphaned records
 - Cascade deletions maintain referential integrity
 - CHECK constraints enforce business rules (no self-kudos, message length)
@@ -152,17 +169,20 @@ profiles (1) ←→ (many) kudos [as recipient]
 ### Scalability & Performance
 
 **Indexing Strategy:**
+
 - Optimized for primary use case: reverse chronological kudos display
 - Supports efficient filtering by sender/recipient
 - Enables fast user lookup in recipient selector
 - Case-insensitive search capability for display names
 
 **Query Optimization:**
+
 - View pre-joins common query patterns
 - Appropriate indexes on foreign keys and sort columns
 - Minimal data model reduces join complexity
 
 **Future Considerations:**
+
 - Current design supports single-team MVP
 - Schema can be extended for multi-team support by adding workspace/team entity
 - Partitioning not needed for MVP scale
@@ -171,11 +191,13 @@ profiles (1) ←→ (many) kudos [as recipient]
 ### Data Types and Constraints
 
 **Standard Types:**
+
 - UUID for all IDs (Supabase default)
 - TEXT for strings (display_name, email, message, avatar_url)
 - TIMESTAMPTZ for all timestamps (UTC storage)
 
 **Constraints:**
+
 - PRIMARY KEY: profiles(id), kudos(id)
 - FOREIGN KEY: profiles(id) → auth.users(id), kudos(sender_id/recipient_id) → profiles(id)
 - CHECK: kudos.sender_id != kudos.recipient_id
@@ -186,17 +208,20 @@ profiles (1) ←→ (many) kudos [as recipient]
 ### Automation & Triggers
 
 **Profile Creation Trigger:**
+
 - Automatically creates profile when user signs up
 - Extracts display_name, email, avatar_url from OAuth provider metadata
 - Ensures every authenticated user has a profile
 
 **Profile Update Trigger:**
+
 - Automatically updates updated_at timestamp on profile modifications
 - Maintains accurate modification tracking
 
 ### MVP Scope Decisions
 
 **Included:**
+
 - Complete CRUD for kudos (Create, Read, Delete)
 - User profile management
 - Public kudos board for single team
@@ -204,6 +229,7 @@ profiles (1) ←→ (many) kudos [as recipient]
 - Data integrity via constraints
 
 **Excluded (for simplicity):**
+
 - AI generation tracking (no is_ai_generated flag)
 - Database-level rate limiting
 - Soft deletes
@@ -216,6 +242,7 @@ profiles (1) ←→ (many) kudos [as recipient]
 None. All database planning decisions have been made and approved. The schema is ready for implementation.
 
 ### Next Steps
+
 1. Create Supabase migration files for tables, indexes, and constraints
 2. Implement RLS policies
 3. Create database triggers for profile automation
