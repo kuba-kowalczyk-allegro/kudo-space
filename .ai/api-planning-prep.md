@@ -427,7 +427,7 @@ When implementing this schema, follow this order:
 - Use parameterized queries in application layer
 - RLS policies use built-in auth.uid() function
 - Avoid dynamic SQL in application code
-</db-plan>
+  </db-plan>
 
 <prd>
 # Product Requirements Document (PRD) - KudoSpace
@@ -554,7 +554,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 - Metric-002: AI Feature Utility: The AI content generation feature is functional and provides sensible, context-appropriate suggestions based on user-provided prompts. For the MVP, the "usefulness" will be judged subjectively by the development team, without a formal user feedback mechanism.
 - Metric-003: User Adoption: The application is successfully deployed and used by a small team, with kudos being actively created and viewed.
 - Metric-004: Stability: The application runs without critical errors, and core features like authentication and kudo creation are consistently available.
-</prd>
+  </prd>
 
 <tech-stack>
 Frontend - Astro with React for interactive components:
@@ -581,7 +581,7 @@ CI/CD and Hosting:
 
 - GitHub Actions for building CI/CD pipelines
 - DigitalOcean for hosting the application using a Docker image
-</tech-stack>
+  </tech-stack>
 
 You are an experienced API architect whose task is to create a comprehensive REST API plan. Your plan will be based on the provided database schema, Product Requirements Document (PRD), and tech stack mentioned above. Carefully review the inputs and perform the following steps:
 
@@ -627,10 +627,13 @@ The final API plan should be formatted in markdown and include the following sec
 # REST API Plan
 
 ## 1. Resources
+
 - List each main resource and its corresponding database table
 
 ## 2. Endpoints
+
 For each resource provide:
+
 - HTTP Method
 - URL Path
 - Brief description
@@ -641,9 +644,11 @@ For each resource provide:
 - Error codes and messages
 
 ## 3. Authentication and Authorization
+
 - Describe the chosen authentication mechanism and implementation details
 
 ## 4. Validation and Business Logic
+
 - List validation conditions for each resource
 - Describe how business logic is implemented in the API
 ```

@@ -4,11 +4,11 @@
 
 The API provides access to the following main resources:
 
-| Resource | Database Entity | Description |
-|----------|----------------|-------------|
-| **Kudos** | `kudos` table, `kudos_with_users` view | Gratitude messages between users |
-| **Users** | `profiles` table | User profiles extended from Supabase auth |
-| **AI Message Generator** | N/A (external service) | AI-powered message generation utility |
+| Resource                 | Database Entity                        | Description                               |
+| ------------------------ | -------------------------------------- | ----------------------------------------- |
+| **Kudos**                | `kudos` table, `kudos_with_users` view | Gratitude messages between users          |
+| **Users**                | `profiles` table                       | User profiles extended from Supabase auth |
+| **AI Message Generator** | N/A (external service)                 | AI-powered message generation utility     |
 
 ## 2. Endpoints
 
@@ -25,10 +25,10 @@ Retrieves all kudos from the board in reverse chronological order.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `limit` | integer | No | 50 | Number of kudos to return (1-100) |
-| `offset` | integer | No | 0 | Number of kudos to skip for pagination |
+| Parameter | Type    | Required | Default | Description                            |
+| --------- | ------- | -------- | ------- | -------------------------------------- |
+| `limit`   | integer | No       | 50      | Number of kudos to return (1-100)      |
+| `offset`  | integer | No       | 0       | Number of kudos to skip for pagination |
 
 **Request Payload:** None
 
@@ -68,11 +68,11 @@ Retrieves all kudos from the board in reverse chronological order.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 400 | `INVALID_PARAMETERS` | Invalid limit or offset values |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code           | Description                    |
+| ----------- | -------------------- | ------------------------------ |
+| 401         | `UNAUTHORIZED`       | User is not authenticated      |
+| 400         | `INVALID_PARAMETERS` | Invalid limit or offset values |
+| 500         | `INTERNAL_ERROR`     | Server error                   |
 
 ---
 
@@ -87,9 +87,9 @@ Retrieves details of a specific kudo.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID | The kudo's unique identifier |
+| Parameter | Type | Description                  |
+| --------- | ---- | ---------------------------- |
+| `id`      | UUID | The kudo's unique identifier |
 
 **Request Payload:** None
 
@@ -120,12 +120,12 @@ Retrieves details of a specific kudo.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 404 | `KUDO_NOT_FOUND` | Kudo with the specified ID does not exist |
-| 400 | `INVALID_UUID` | The provided ID is not a valid UUID |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code       | Description                               |
+| ----------- | ---------------- | ----------------------------------------- |
+| 401         | `UNAUTHORIZED`   | User is not authenticated                 |
+| 404         | `KUDO_NOT_FOUND` | Kudo with the specified ID does not exist |
+| 400         | `INVALID_UUID`   | The provided ID is not a valid UUID       |
+| 500         | `INTERNAL_ERROR` | Server error                              |
 
 ---
 
@@ -151,10 +151,10 @@ Creates a new kudo for another user.
 
 **Request Body Schema:**
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `recipient_id` | UUID string | Yes | Valid UUID, must exist in profiles, cannot equal sender | ID of the user receiving the kudo |
-| `message` | string | Yes | 1-1000 characters | The gratitude message |
+| Field          | Type        | Required | Constraints                                             | Description                       |
+| -------------- | ----------- | -------- | ------------------------------------------------------- | --------------------------------- |
+| `recipient_id` | UUID string | Yes      | Valid UUID, must exist in profiles, cannot equal sender | ID of the user receiving the kudo |
+| `message`      | string      | Yes      | 1-1000 characters                                       | The gratitude message             |
 
 **Success Response (201 Created):**
 
@@ -183,15 +183,15 @@ Creates a new kudo for another user.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 400 | `INVALID_RECIPIENT` | recipient_id is missing, invalid UUID, or does not exist |
-| 400 | `SELF_KUDO_NOT_ALLOWED` | Cannot send kudo to yourself (recipient_id equals sender_id) |
-| 400 | `INVALID_MESSAGE` | Message is missing or empty |
-| 400 | `MESSAGE_TOO_SHORT` | Message is less than 1 character |
-| 400 | `MESSAGE_TOO_LONG` | Message exceeds 1000 characters |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code              | Description                                                  |
+| ----------- | ----------------------- | ------------------------------------------------------------ |
+| 401         | `UNAUTHORIZED`          | User is not authenticated                                    |
+| 400         | `INVALID_RECIPIENT`     | recipient_id is missing, invalid UUID, or does not exist     |
+| 400         | `SELF_KUDO_NOT_ALLOWED` | Cannot send kudo to yourself (recipient_id equals sender_id) |
+| 400         | `INVALID_MESSAGE`       | Message is missing or empty                                  |
+| 400         | `MESSAGE_TOO_SHORT`     | Message is less than 1 character                             |
+| 400         | `MESSAGE_TOO_LONG`      | Message exceeds 1000 characters                              |
+| 500         | `INTERNAL_ERROR`        | Server error                                                 |
 
 ---
 
@@ -206,9 +206,9 @@ Deletes a kudo. Only the sender can delete their own kudos.
 
 **Path Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID | The kudo's unique identifier |
+| Parameter | Type | Description                  |
+| --------- | ---- | ---------------------------- |
+| `id`      | UUID | The kudo's unique identifier |
 
 **Request Payload:** None
 
@@ -223,13 +223,13 @@ Deletes a kudo. Only the sender can delete their own kudos.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 403 | `FORBIDDEN` | User is not the sender of this kudo |
-| 404 | `KUDO_NOT_FOUND` | Kudo with the specified ID does not exist |
-| 400 | `INVALID_UUID` | The provided ID is not a valid UUID |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code       | Description                               |
+| ----------- | ---------------- | ----------------------------------------- |
+| 401         | `UNAUTHORIZED`   | User is not authenticated                 |
+| 403         | `FORBIDDEN`      | User is not the sender of this kudo       |
+| 404         | `KUDO_NOT_FOUND` | Kudo with the specified ID does not exist |
+| 400         | `INVALID_UUID`   | The provided ID is not a valid UUID       |
+| 500         | `INTERNAL_ERROR` | Server error                              |
 
 ---
 
@@ -246,10 +246,10 @@ Retrieves all user profiles for recipient selection.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `search` | string | No | - | Case-insensitive search string to filter by display name or email |
-| `exclude_me` | boolean | No | true | Whether to exclude the authenticated user from results |
+| Parameter    | Type    | Required | Default | Description                                                       |
+| ------------ | ------- | -------- | ------- | ----------------------------------------------------------------- |
+| `search`     | string  | No       | -       | Case-insensitive search string to filter by display name or email |
+| `exclude_me` | boolean | No       | true    | Whether to exclude the authenticated user from results            |
 
 **Request Payload:** None
 
@@ -276,10 +276,10 @@ Retrieves all user profiles for recipient selection.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code       | Description               |
+| ----------- | ---------------- | ------------------------- |
+| 401         | `UNAUTHORIZED`   | User is not authenticated |
+| 500         | `INTERNAL_ERROR` | Server error              |
 
 ---
 
@@ -311,11 +311,11 @@ Retrieves the authenticated user's profile information.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 404 | `PROFILE_NOT_FOUND` | User's profile does not exist (should not happen in normal flow) |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code          | Description                                                      |
+| ----------- | ------------------- | ---------------------------------------------------------------- |
+| 401         | `UNAUTHORIZED`      | User is not authenticated                                        |
+| 404         | `PROFILE_NOT_FOUND` | User's profile does not exist (should not happen in normal flow) |
+| 500         | `INTERNAL_ERROR`    | Server error                                                     |
 
 ---
 
@@ -342,9 +342,9 @@ Generates a kudo message using AI based on a user prompt.
 
 **Request Body Schema:**
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `prompt` | string | Yes | 10-200 characters | Short description of what the user wants to thank someone for |
+| Field    | Type   | Required | Constraints       | Description                                                   |
+| -------- | ------ | -------- | ----------------- | ------------------------------------------------------------- |
+| `prompt` | string | Yes      | 10-200 characters | Short description of what the user wants to thank someone for |
 
 **Success Response (200 OK):**
 
@@ -356,14 +356,14 @@ Generates a kudo message using AI based on a user prompt.
 
 **Error Responses:**
 
-| Status Code | Error Code | Description |
-|-------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 400 | `INVALID_PROMPT` | Prompt is missing, empty, or not a string |
-| 400 | `PROMPT_TOO_SHORT` | Prompt is less than 10 characters |
-| 400 | `PROMPT_TOO_LONG` | Prompt exceeds 200 characters |
-| 503 | `AI_SERVICE_UNAVAILABLE` | OpenRouter.ai service is unavailable or returned an error |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Code               | Description                                               |
+| ----------- | ------------------------ | --------------------------------------------------------- |
+| 401         | `UNAUTHORIZED`           | User is not authenticated                                 |
+| 400         | `INVALID_PROMPT`         | Prompt is missing, empty, or not a string                 |
+| 400         | `PROMPT_TOO_SHORT`       | Prompt is less than 10 characters                         |
+| 400         | `PROMPT_TOO_LONG`        | Prompt exceeds 200 characters                             |
+| 503         | `AI_SERVICE_UNAVAILABLE` | OpenRouter.ai service is unavailable or returned an error |
+| 500         | `INTERNAL_ERROR`         | Server error                                              |
 
 **Error Response Example (AI Service Unavailable):**
 
@@ -413,15 +413,15 @@ Generates a kudo message using AI based on a user prompt.
 
 **Resource-Level Authorization:**
 
-| Endpoint | Authorization Rule |
-|----------|-------------------|
-| `GET /api/kudos` | Any authenticated user |
-| `GET /api/kudos/{id}` | Any authenticated user |
-| `POST /api/kudos` | Any authenticated user (sender_id set automatically) |
-| `DELETE /api/kudos/{id}` | Only the sender of the kudo |
-| `GET /api/users` | Any authenticated user |
-| `GET /api/users/me` | Any authenticated user |
-| `POST /api/ai/generate-message` | Any authenticated user |
+| Endpoint                        | Authorization Rule                                   |
+| ------------------------------- | ---------------------------------------------------- |
+| `GET /api/kudos`                | Any authenticated user                               |
+| `GET /api/kudos/{id}`           | Any authenticated user                               |
+| `POST /api/kudos`               | Any authenticated user (sender_id set automatically) |
+| `DELETE /api/kudos/{id}`        | Only the sender of the kudo                          |
+| `GET /api/users`                | Any authenticated user                               |
+| `GET /api/users/me`             | Any authenticated user                               |
+| `POST /api/ai/generate-message` | Any authenticated user                               |
 
 **Business Logic Constraints:**
 
@@ -442,28 +442,34 @@ Generates a kudo message using AI based on a user prompt.
 // Pseudocode for Astro middleware
 export async function onRequest(context, next) {
   const supabase = createSupabaseClient(context);
-  
+
   // Check if route requires authentication
-  if (context.url.pathname.startsWith('/api/')) {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    
+  if (context.url.pathname.startsWith("/api/")) {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
     if (error || !user) {
-      return new Response(JSON.stringify({
-        error: {
-          message: "Authentication required",
-          code: "UNAUTHORIZED"
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: "Authentication required",
+            code: "UNAUTHORIZED",
+          },
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
         }
-      }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      );
     }
-    
+
     // Attach user to context
     context.locals.user = user;
     context.locals.supabase = supabase;
   }
-  
+
   return next();
 }
 ```
@@ -490,32 +496,32 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 **POST /api/kudos:**
 
-| Field | Validation Rules | Error Code |
-|-------|-----------------|------------|
-| `recipient_id` | Required | `INVALID_RECIPIENT` |
-| `recipient_id` | Must be valid UUID format | `INVALID_RECIPIENT` |
-| `recipient_id` | Must reference existing profile | `INVALID_RECIPIENT` |
+| Field          | Validation Rules                   | Error Code              |
+| -------------- | ---------------------------------- | ----------------------- |
+| `recipient_id` | Required                           | `INVALID_RECIPIENT`     |
+| `recipient_id` | Must be valid UUID format          | `INVALID_RECIPIENT`     |
+| `recipient_id` | Must reference existing profile    | `INVALID_RECIPIENT`     |
 | `recipient_id` | Cannot equal authenticated user ID | `SELF_KUDO_NOT_ALLOWED` |
-| `message` | Required | `INVALID_MESSAGE` |
-| `message` | Minimum length: 1 character | `MESSAGE_TOO_SHORT` |
-| `message` | Maximum length: 1000 characters | `MESSAGE_TOO_LONG` |
+| `message`      | Required                           | `INVALID_MESSAGE`       |
+| `message`      | Minimum length: 1 character        | `MESSAGE_TOO_SHORT`     |
+| `message`      | Maximum length: 1000 characters    | `MESSAGE_TOO_LONG`      |
 
 **DELETE /api/kudos/{id}:**
 
-| Field | Validation Rules | Error Code |
-|-------|-----------------|------------|
-| `id` (path param) | Must be valid UUID format | `INVALID_UUID` |
-| `id` (path param) | Must reference existing kudo | `KUDO_NOT_FOUND` |
-| Authorization | Authenticated user must be the sender | `FORBIDDEN` |
+| Field             | Validation Rules                      | Error Code       |
+| ----------------- | ------------------------------------- | ---------------- |
+| `id` (path param) | Must be valid UUID format             | `INVALID_UUID`   |
+| `id` (path param) | Must reference existing kudo          | `KUDO_NOT_FOUND` |
+| Authorization     | Authenticated user must be the sender | `FORBIDDEN`      |
 
 #### 4.1.2 Users Resource Validation
 
 **GET /api/users:**
 
-| Field | Validation Rules | Error Code |
-|-------|-----------------|------------|
-| `search` (query param) | Optional, string | - |
-| `exclude_me` (query param) | Optional, boolean | - |
+| Field                      | Validation Rules  | Error Code |
+| -------------------------- | ----------------- | ---------- |
+| `search` (query param)     | Optional, string  | -          |
+| `exclude_me` (query param) | Optional, boolean | -          |
 
 **GET /api/users/me:**
 
@@ -525,12 +531,12 @@ No input validation required (no parameters).
 
 **POST /api/ai/generate-message:**
 
-| Field | Validation Rules | Error Code |
-|-------|-----------------|------------|
-| `prompt` | Required | `INVALID_PROMPT` |
-| `prompt` | Must be a string | `INVALID_PROMPT` |
-| `prompt` | Minimum length: 10 characters | `PROMPT_TOO_SHORT` |
-| `prompt` | Maximum length: 200 characters | `PROMPT_TOO_LONG` |
+| Field    | Validation Rules               | Error Code         |
+| -------- | ------------------------------ | ------------------ |
+| `prompt` | Required                       | `INVALID_PROMPT`   |
+| `prompt` | Must be a string               | `INVALID_PROMPT`   |
+| `prompt` | Minimum length: 10 characters  | `PROMPT_TOO_SHORT` |
+| `prompt` | Maximum length: 200 characters | `PROMPT_TOO_LONG`  |
 
 ### 4.2 Database Constraints
 
