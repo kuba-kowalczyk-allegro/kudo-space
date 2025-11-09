@@ -22,6 +22,9 @@ drop policy if exists profiles_insert_via_trigger on public.profiles;
 drop policy if exists profiles_update_own on public.profiles;
 drop policy if exists profiles_delete_restricted on public.profiles;
 
+-- With policies removed, explicitly disable RLS so anon key can read data locally
+alter table public.profiles disable row level security;
+
 -- -----------------------------------------------------------------------------
 -- 2. Drop RLS Policies from Kudos Table
 -- -----------------------------------------------------------------------------
@@ -30,6 +33,9 @@ drop policy if exists kudos_select_all on public.kudos;
 drop policy if exists kudos_insert_own on public.kudos;
 drop policy if exists kudos_update_none on public.kudos;
 drop policy if exists kudos_delete_own on public.kudos;
+
+-- Prevent RLS from blocking anon key after policy removal in local development
+alter table public.kudos disable row level security;
 
 -- =============================================================================
 -- End of Migration: Disable RLS Policies for Local Development
