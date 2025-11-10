@@ -166,3 +166,70 @@ export interface ErrorResponseDTO {
     details?: ErrorDetails;
   };
 }
+
+// ============================================================================
+// View Models (Frontend UI Layer)
+// ============================================================================
+
+/**
+ * Person information for display in kudos cards
+ * Transformed from UserProfileDTO for UI consumption
+ */
+export interface KudoPersonViewModel {
+  id: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  email: string;
+}
+
+/**
+ * Kudo view model for rendering in the kudos board
+ * Includes computed display properties and authorization flags
+ */
+export interface KudoViewModel {
+  id: string;
+  message: string;
+  createdAtISO: string;
+  createdAtRelative: string;
+  sender: KudoPersonViewModel;
+  recipient: KudoPersonViewModel;
+  canDelete: boolean;
+}
+
+/**
+ * Error state for UI display
+ * Simplified from ErrorResponseDTO for component consumption
+ */
+export interface ErrorState {
+  code: ErrorCode;
+  message: string;
+  details?: ErrorDetails;
+}
+
+/**
+ * Parameters for fetching kudos from the API
+ */
+export interface FetchKudosParams {
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * State exposed by the useInfiniteKudos hook
+ * Manages infinite scroll pagination and loading states
+ */
+export interface UseInfiniteKudosState {
+  items: KudoViewModel[];
+  isInitialLoading: boolean;
+  isLoadingMore: boolean;
+  isRefreshing: boolean;
+  error: ErrorState | null;
+  hasMore: boolean;
+  pagination: {
+    limit: number;
+    offset: number;
+    total?: number;
+  };
+  loadMore: () => void;
+  refresh: () => void;
+}

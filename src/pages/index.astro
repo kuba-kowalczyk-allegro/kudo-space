@@ -1,8 +1,8 @@
 ---
-import Welcome from "../components/Welcome.astro";
+import { KudosBoard } from "../components/KudosBoard.tsx";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-  <Welcome />
+  <KudosBoard client:load />
 </Layout>

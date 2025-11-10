@@ -7,86 +7,86 @@ KudoSpace delivers a hybrid Astro + React experience with a single primary appli
 ## 2. View List
 
 - **Authentication Gateway**
-	- View path: `/login`
-	- Purpose: Introduce product, surface Supabase-powered social login, and handle auth errors.
-	- Key information: Product value statement, login button, error messaging.
-	- Key view components: Hero section, `LoginButton`, `AuthErrorBanner`.
-	- UX/Accessibility/Security: Large-tap login button, focus ring; guard against repeated submissions; redirect authenticated visitors to `/`.
+  - View path: `/login`
+  - Purpose: Introduce product, surface Supabase-powered social login, and handle auth errors.
+  - Key information: Product value statement, login button, error messaging.
+  - Key view components: Hero section, `LoginButton`, `AuthErrorBanner`.
+  - UX/Accessibility/Security: Large-tap login button, focus ring; guard against repeated submissions; redirect authenticated visitors to `/`.
 
 - **Kudos Board**
-	- View path: `/`
-	- Purpose: Authenticated hub to browse and manage kudos.
-	- Key information: Grid of kudos ordered newest-first, manual refresh, infinite-scroll loader, empty-state messaging.
-	- Key view components: `AppHeader`, `KudoGrid`, `KudoCard`, `KudoSkeleton`, `EmptyState`, `ManualRefreshButton`.
-	- UX/Accessibility/Security: Sticky header maintains navigation; cards expose semantic regions; delete controls hidden unless sender matches viewer;
+  - View path: `/`
+  - Purpose: Authenticated hub to browse and manage kudos.
+  - Key information: Grid of kudos ordered newest-first, manual refresh, infinite-scroll loader, empty-state messaging.
+  - Key view components: `AppHeader`, `KudoGrid`, `KudoCard`, `KudoSkeleton`, `EmptyState`, `ManualRefreshButton`.
+  - UX/Accessibility/Security: Sticky header maintains navigation; cards expose semantic regions; delete controls hidden unless sender matches viewer;
 
 - **Create Kudo Modal**
-	- View path: Overlay spawned from `/` (shadcn/ui Dialog).
-	- Purpose: Collect recipient and message, optionally seed AI-generated text, submit new kudo.
-	- Key information: Recipient combobox (excluding self), message textarea with counter, AI prompt flow, validation errors, submission state.
-	- Key view components: `Dialog`, `RecipientCombobox`, `MessageTextarea`, `CharacterCounter`, `AiPromptToggle`, `FormErrorList`, `PrimaryButton`.
-	- UX/Accessibility/Security: Focus trap with initial focus on recipient; ESC / close button support; AI request disabled until prompt valid; server errors surface via toast; submit button disabled while posting to avoid duplicates.
+  - View path: Overlay spawned from `/` (shadcn/ui Dialog).
+  - Purpose: Collect recipient and message, optionally seed AI-generated text, submit new kudo.
+  - Key information: Recipient combobox (excluding self), message textarea with counter, AI prompt flow, validation errors, submission state.
+  - Key view components: `Dialog`, `RecipientCombobox`, `MessageTextarea`, `CharacterCounter`, `AiPromptToggle`, `FormErrorList`, `PrimaryButton`.
+  - UX/Accessibility/Security: Focus trap with initial focus on recipient; ESC / close button support; AI request disabled until prompt valid; server errors surface via toast; submit button disabled while posting to avoid duplicates.
 
 - **Delete Confirmation Dialog**
-	- View path: AlertDialog overlay from `/` triggered per `KudoCard`.
-	- Purpose: Confirm destructive action before removing user-authored kudo.
-	- Key information: Kudo preview (sender → recipient), confirmation text, destructive action buttons.
-	- Key view components: `AlertDialog`, `KudoSummary`, `DestructiveButton`, `CancelButton`.
-	- UX/Accessibility/Security: Default focus on Cancel; optimistic removal paired with rollback on API failure; accessible description clarifies irreversibility; requires sender ownership check before opening.
+  - View path: AlertDialog overlay from `/` triggered per `KudoCard`.
+  - Purpose: Confirm destructive action before removing user-authored kudo.
+  - Key information: Kudo preview (sender → recipient), confirmation text, destructive action buttons.
+  - Key view components: `AlertDialog`, `KudoSummary`, `DestructiveButton`, `CancelButton`.
+  - UX/Accessibility/Security: Default focus on Cancel; optimistic removal paired with rollback on API failure; accessible description clarifies irreversibility; requires sender ownership check before opening.
 
 - **Session Timeout View**
-	- View path: `/session-expired`
-	- Purpose: Catch 401 responses and prompt re-authentication while preserving return path.
-	- Key information: Message explaining expiration, `ReauthenticateButton`, optional troubleshooting tips.
-	- Key view components: `NoticePanel`, `ReauthenticateButton`.
-	- UX/Accessibility/Security: Auto-focus on call-to-action, ensures logout state cleared before redirect to login.
+  - View path: `/session-expired`
+  - Purpose: Catch 401 responses and prompt re-authentication while preserving return path.
+  - Key information: Message explaining expiration, `ReauthenticateButton`, optional troubleshooting tips.
+  - Key view components: `NoticePanel`, `ReauthenticateButton`.
+  - UX/Accessibility/Security: Auto-focus on call-to-action, ensures logout state cleared before redirect to login.
 
 - **Global Error View**
-	- View path: `/error`
-	- Purpose: Present recoverable full-screen error when board fails to load (e.g., 500, network outage).
-	- Key information: Friendly error copy, retry action, support contact link.
-	- Key view components: `ErrorState`, `RetryButton`.
-	- UX/Accessibility/Security: retry replays last request; ensures no sensitive data leaks in copy; fallback accessible from keyboard.
+  - View path: `/error`
+  - Purpose: Present recoverable full-screen error when board fails to load (e.g., 500, network outage).
+  - Key information: Friendly error copy, retry action, support contact link.
+  - Key view components: `ErrorState`, `RetryButton`.
+  - UX/Accessibility/Security: retry replays last request; ensures no sensitive data leaks in copy; fallback accessible from keyboard.
 
 ## 3. User Journey Map
 
 - **First-time login (US-001)**
-	1. User lands on `/login` (Authentication Gateway).
-	2. Clicks `LoginButton`, authenticates via Supabase social provider.
-	3. Redirect back to `/` with session cookie; AuthContext hydrates user via `/api/users/me`.
-	4. If no kudos exist, `EmptyState` encourages “Give First Kudo”.
-	5. User triggers Create Kudo Modal to post first message.
+  1.  User lands on `/login` (Authentication Gateway).
+  2.  Clicks `LoginButton`, authenticates via Supabase social provider.
+  3.  Redirect back to `/` with session cookie; AuthContext hydrates user via `/api/users/me`.
+  4.  If no kudos exist, `EmptyState` encourages “Give First Kudo”.
+  5.  User triggers Create Kudo Modal to post first message.
 
 - **Browse kudos (US-002)**
-	1. Authenticated user sees `KudoGrid` ordered newest-first.
-	2. Infinite scroll requests `/api/kudos` with offset on intersection.
-	3. Manual refresh button invalidates cache; skeleton row shows loading.
+  1.  Authenticated user sees `KudoGrid` ordered newest-first.
+  2.  Infinite scroll requests `/api/kudos` with offset on intersection.
+  3.  Manual refresh button invalidates cache; skeleton row shows loading.
 
 - **Create kudo manually (US-003)**
-	1. Select “Give Kudos” in header → Create Kudo Modal opens.
-	2. Choose recipient via combobox (fetch from `/api/users?exclude_me=true`).
-	3. Compose message; submit posts `/api/kudos`.
-	4. Modal closes on success; board refetches first page and prepends new kudo.
+  1.  Select “Give Kudos” in header → Create Kudo Modal opens.
+  2.  Choose recipient via combobox (fetch from `/api/users?exclude_me=true`).
+  3.  Compose message; submit posts `/api/kudos`.
+  4.  Modal closes on success; board refetches first page and prepends new kudo.
 
 - **Create kudo with AI (US-005)**
-	1. Inside modal, user activates “✨ Generate with AI”.
-	2. Prompt field appears; valid prompt triggers POST `/api/ai/generate-message`.
-	3. Loading spinner displayed; success writes generated text into message field.
-	4. User edits if needed, then submits kudo as above.
+  1.  Inside modal, user activates “✨ Generate with AI”.
+  2.  Prompt field appears; valid prompt triggers POST `/api/ai/generate-message`.
+  3.  Loading spinner displayed; success writes generated text into message field.
+  4.  User edits if needed, then submits kudo as above.
 
 - **Handle AI failure (US-006)**
-	1. If AI request returns error/timeout, toast notifies user.
-	2. Prompt field remains editable; user manually types message and submits.
+  1.  If AI request returns error/timeout, toast notifies user.
+  2.  Prompt field remains editable; user manually types message and submits.
 
 - **Delete kudo (US-004)**
-	1. User locates own kudo (delete icon visible).
-	2. Click opens Delete Confirmation Dialog; optimistic removal triggers immediately.
-	3. `/api/kudos/{id}` DELETE sent; toast confirms success or surfaces rollback on error.
+  1.  User locates own kudo (delete icon visible).
+  2.  Click opens Delete Confirmation Dialog; optimistic removal triggers immediately.
+  3.  `/api/kudos/{id}` DELETE sent; toast confirms success or surfaces rollback on error.
 
 - **Session expiration (US-001, US-007)**
-	1. API returns 401; AuthContext clears session.
-	2. User redirected to `/session-expired` with return URL.
-	3. Re-authentication button routes to `/login`; upon success, user returned to saved path.
+  1.  API returns 401; AuthContext clears session.
+  2.  User redirected to `/session-expired` with return URL.
+  3.  Re-authentication button routes to `/login`; upon success, user returned to saved path.
 
 ## 4. Layout and Navigation Structure
 
