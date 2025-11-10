@@ -8,13 +8,15 @@ import { KudoSkeleton } from "./KudoSkeleton.tsx";
 export interface KudosBoardProps {
   currentUserId?: string;
   userName?: string;
+  userAvatar?: string | null;
+  isAuthenticated?: boolean;
 }
 
 /**
  * Root component for the kudos board view
  * Orchestrates data fetching, state management, and rendering of all child components
  */
-export const KudosBoard = ({ currentUserId, userName }: KudosBoardProps) => {
+export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticated }: KudosBoardProps) => {
   const { items, isInitialLoading, isLoadingMore, isRefreshing, error, hasMore, loadMore, refresh } = useInfiniteKudos(
     30,
     currentUserId
@@ -51,7 +53,13 @@ export const KudosBoard = ({ currentUserId, userName }: KudosBoardProps) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <AppHeader onRefresh={refresh} isRefreshing={isRefreshing} userName={userName} />
+      <AppHeader
+        onRefresh={refresh}
+        isRefreshing={isRefreshing}
+        userName={userName}
+        userAvatar={userAvatar}
+        isAuthenticated={isAuthenticated}
+      />
 
       <main className="container mx-auto flex-1 px-4 py-8">
         {errorBanner}

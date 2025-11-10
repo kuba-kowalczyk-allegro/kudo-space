@@ -63,6 +63,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
   - All submitted kudos are visible on the board.
   - Kudos are displayed in reverse chronological order (newest first).
   - Each kudo on the board displays the recipient's name, the sender's name, and the message.
+  - Board is available only for authenticated users.
 
 ### US-003: Create a Kudo
 

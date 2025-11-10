@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SocialLoginOptions from "../components/SocialLoginOptions.astro";
+
+// Get query parameters for error/info messages and redirectTo
+const error = Astro.url.searchParams.get("error");
+const info = Astro.url.searchParams.get("info");
+const redirectTo = Astro.url.searchParams.get("redirectTo") || undefined;
+
+// Map error codes to user-friendly messages
+const errorMessages: Record<string, string> = {
+  access_denied: "Sign-in was cancelled. Please try again.",
+  provider_unavailable: "The authentication provider is currently unavailable. Please try again later.",
+  callback_failed: "Authentication failed. Please try again.",
+  invalid_request: "Invalid authentication request. Please try again.",
+  session_expired: "Your session has expired. Please sign in again.",
+};
+
+// Map info codes to user-friendly messages
+const infoMessages: Record<string, string> = {
+  logged_out: "You have been successfully logged out.",
+  session_required: "Please sign in to continue.",
+};
+
+const errorMessage = error ? errorMessages[error] || "An error occurred during sign-in. Please try again." : null;
+const infoMessage = info ? infoMessages[info] || info : null;
+
+// Get configured OAuth provider from environment (default to google)
+const oauthProvider = (import.meta.env.SUPABASE_OAUTH_PROVIDER || "google") as "google" | "github";
+---
+
+<Layout title="Sign In - KudoSpace">
+  <div class="min-h-screen flex flex-col">
+    <!-- Main content -->
+    <main class="flex-1 flex items-center justify-center p-4">
+      <div class="w-full max-w-md space-y-8">
+        <!-- Logo and title -->
+        <div class="text-center space-y-2">
+          <h1 class="text-4xl font-bold tracking-tight">KudoSpace</h1>
+          <p class="text-base text-muted-foreground">Celebrate your team's achievements together</p>
+        </div>
+
+        <!-- Login card -->
+        <div class="bg-card rounded-lg border shadow-sm p-8 space-y-6">
+          <!-- Social login options with error/info display -->
+          <SocialLoginOptions
+            provider={oauthProvider}
+            redirectTo={redirectTo}
+            error={errorMessage}
+            info={infoMessage}
+          />
+
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <span class="w-full border-t"></span>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase">
+              <span class="bg-card px-2 text-muted-foreground">New to KudoSpace?</span>
+            </div>
+          </div>
+
+          <p class="text-center text-sm text-muted-foreground">
+            Your account will be created automatically when you continue with Google for the first time.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Optional: Footer with value proposition -->
+    <footer class="border-t bg-muted/50 py-8">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center space-y-4">
+          <h3 class="text-lg font-semibold">Why KudoSpace?</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div class="space-y-2">
+              <div class="text-2xl">🎯</div>
+              <p class="font-medium">Simple & Focused</p>
+              <p class="text-muted-foreground">One board, one team, pure appreciation</p>
+            </div>
+            <div class="space-y-2">
+              <div class="text-2xl">👥</div>
+              <p class="font-medium">Build Team Culture</p>
+              <p class="text-muted-foreground">Foster gratitude in remote teams</p>
+            </div>
+            <div class="space-y-2">
+              <div class="text-2xl">⚡</div>
+              <p class="font-medium">Quick & Easy</p>
+              <p class="text-muted-foreground">Sign in and start sharing kudos instantly</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</Layout>
