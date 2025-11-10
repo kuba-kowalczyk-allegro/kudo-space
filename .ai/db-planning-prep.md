@@ -149,7 +149,7 @@ profiles (1) ←→ (many) kudos [as recipient]
 
 **Authentication:**
 
-- Leverages Supabase Auth with social provider (Google/GitHub)
+- Leverages Supabase Auth with social provider (GitHub)
 - User identity managed by `auth.users`, extended by `profiles`
 
 **Row Level Security:**

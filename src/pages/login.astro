@@ -25,8 +25,8 @@ const infoMessages: Record<string, string> = {
 const errorMessage = error ? errorMessages[error] || "An error occurred during sign-in. Please try again." : null;
 const infoMessage = info ? infoMessages[info] || info : null;
 
-// Get configured OAuth provider from environment (default to google)
-const oauthProvider = (import.meta.env.SUPABASE_OAUTH_PROVIDER || "google") as "google" | "github";
+// Get configured OAuth provider from environment (default to github)
+const oauthProvider = (import.meta.env.SUPABASE_OAUTH_PROVIDER || "github") as "google" | "github";
 ---
 
 <Layout title="Sign In - KudoSpace">
@@ -60,7 +60,7 @@ const oauthProvider = (import.meta.env.SUPABASE_OAUTH_PROVIDER || "google") as "
           </div>
 
           <p class="text-center text-sm text-muted-foreground">
-            Your account will be created automatically when you continue with Google for the first time.
+            Your account will be created automatically when you continue with GitHub for the first time.
           </p>
         </div>
       </div>

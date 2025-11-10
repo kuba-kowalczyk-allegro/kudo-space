@@ -10,7 +10,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 
 ## 3. Functional Requirements
 
-- FR-001: User Authentication: Users must be able to register and log in to the application using a single social provider (e.g., Google or GitHub) managed by Supabase.
+- FR-001: User Authentication: Users must be able to register and log in to the application using a single social provider (e.g., GitHub) managed by Supabase.
 - FR-002: Shared Workspace: All authenticated users will belong to a single, shared workspace.
 - FR-003: Kudos Board: The application will feature a single, public board that displays all kudos for all users.
 - FR-004: Board Sorting: Kudos on the board must be displayed in reverse chronological order, with the newest entries appearing at the top.
@@ -46,7 +46,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 ### US-001: User Authentication and Session Management
 
 - Title: User Signup and Login
-- Description: As a new user, I want to sign up and log in quickly using my existing social account (e.g., Google or GitHub) so that I can access the application without creating a new set of credentials.
+- Description: As a new user, I want to sign up and log in quickly using my existing social account (e.g., GitHub) so that I can access the application without creating a new set of credentials.
 - Acceptance Criteria:
   - A "Login" button is visible to unauthenticated users.
   - Clicking the login button redirects the user to the Supabase authentication page for a single social provider.

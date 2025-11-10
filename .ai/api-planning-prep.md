@@ -442,7 +442,7 @@ In many teams, particularly those working remotely, there is a lack of informal 
 
 ## 3. Functional Requirements
 
-- FR-001: User Authentication: Users must be able to register and log in to the application using a single social provider (e.g., Google or GitHub) managed by Supabase.
+- FR-001: User Authentication: Users must be able to register and log in to the application using a single social provider (e.g., GitHub) managed by Supabase.
 - FR-002: Shared Workspace: All authenticated users will belong to a single, shared workspace.
 - FR-003: Kudos Board: The application will feature a single, public board that displays all kudos for all users.
 - FR-004: Board Sorting: Kudos on the board must be displayed in reverse chronological order, with the newest entries appearing at the top.

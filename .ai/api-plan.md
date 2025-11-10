@@ -392,7 +392,7 @@ Generates a kudo message using AI based on a user prompt.
 
 1. **User Registration/Login:**
    - Handled client-side using Supabase JavaScript SDK
-   - Users authenticate via social provider (Google or GitHub)
+   - Users authenticate via social provider (GitHub)
    - Supabase returns a JWT access token upon successful authentication
 
 2. **Token Storage:**
