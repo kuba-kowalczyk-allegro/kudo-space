@@ -18,6 +18,7 @@ export interface KudoGridProps {
 export const KudoGrid = ({ kudos, hasMore, isLoadingMore, onLoadMore, onDeleteKudo }: KudoGridProps) => {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  // Intersection Observer for infinite scroll
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasMore || isLoadingMore) return;

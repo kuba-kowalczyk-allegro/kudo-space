@@ -16,7 +16,7 @@ export interface KudosBoardProps {
  */
 export const KudosBoard = ({ currentUserId, userName }: KudosBoardProps) => {
   const { items, isInitialLoading, isLoadingMore, isRefreshing, error, hasMore, loadMore, refresh } = useInfiniteKudos(
-    20,
+    30,
     currentUserId
   );
 
