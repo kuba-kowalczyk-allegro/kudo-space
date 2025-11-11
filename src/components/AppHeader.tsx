@@ -40,7 +40,6 @@ export const AppHeader = ({
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">KudoSpace</h1>
-          {userName && <span className="text-muted-foreground text-sm hidden sm:inline">Welcome, {userName}</span>}
         </div>
 
         <div className="flex items-center gap-3">

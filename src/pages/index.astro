@@ -1,8 +1,23 @@
 ---
 import { KudosBoard } from "../components/KudosBoard.tsx";
 import Layout from "../layouts/Layout.astro";
+
+// Get user and profile from middleware (attached to Astro.locals)
+const { user, profile } = Astro.locals;
+
+// Extract user data for the component
+const currentUserId = user?.id;
+const userName = profile?.display_name;
+const userAvatar = profile?.avatar_url;
+const isAuthenticated = !!user;
 ---
 
 <Layout>
-  <KudosBoard client:load />
+  <KudosBoard
+    client:load
+    currentUserId={currentUserId}
+    userName={userName}
+    userAvatar={userAvatar}
+    isAuthenticated={isAuthenticated}
+  />
 </Layout>
