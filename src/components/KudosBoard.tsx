@@ -1,9 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useInfiniteKudos } from "./hooks/useInfiniteKudos.ts";
 import { AppHeader } from "./AppHeader.tsx";
 import { EmptyState } from "./EmptyState.tsx";
 import { KudoGrid } from "./KudoGrid.tsx";
 import { KudoSkeleton } from "./KudoSkeleton.tsx";
+import { CreateKudoModal } from "./create-kudo/index.ts";
+import type { KudoDTO } from "../types.ts";
 
 export interface KudosBoardProps {
   currentUserId?: string;
@@ -22,6 +24,8 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
     currentUserId
   );
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const handleDeleteKudo = useCallback((id: string) => {
     // TODO: Implement delete functionality when DELETE endpoint is available
     // For now, just log the delete action
@@ -29,6 +33,22 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
     // eslint-disable-next-line no-console
     console.log("Delete kudo:", id);
   }, []);
+
+  const handleGiveKudos = useCallback(() => {
+    setIsCreateModalOpen(true);
+  }, []);
+
+  const handleCreateKudoSuccess = useCallback(
+    (created: KudoDTO) => {
+      // Log success for debugging
+      /* eslint-disable-next-line no-console */
+      console.log("Kudo created successfully:", created);
+
+      // Refresh the board to show the new kudo
+      refresh();
+    },
+    [refresh]
+  );
 
   // Show error banner if there's an error
   const errorBanner = error && (
@@ -59,6 +79,7 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
         userName={userName}
         userAvatar={userAvatar}
         isAuthenticated={isAuthenticated}
+        onGiveKudos={isAuthenticated ? handleGiveKudos : undefined}
       />
 
       <main className="container mx-auto flex-1 px-4 py-8">
@@ -69,7 +90,11 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
             <KudoSkeleton count={8} />
           </div>
         ) : items.length === 0 ? (
-          <EmptyState onRefresh={refresh} isRefreshing={isRefreshing} />
+          <EmptyState
+            onRefresh={refresh}
+            isRefreshing={isRefreshing}
+            onGiveKudos={isAuthenticated ? handleGiveKudos : undefined}
+          />
         ) : (
           <KudoGrid
             kudos={items}
@@ -80,6 +105,15 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
           />
         )}
       </main>
+
+      {/* Create Kudo Modal */}
+      {isAuthenticated && (
+        <CreateKudoModal
+          isOpen={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onSuccess={handleCreateKudoSuccess}
+        />
+      )}
     </div>
   );
 };

@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: Create Kudo
 
 ## 1. Endpoint Overview
+
 Creates a new kudo record for another user. Automatically assigns the authenticated user as the sender and returns the full `KudoDTO`, including populated sender and recipient profiles, for immediate UI consumption.
 
 ## 2. Request Details
+
 - HTTP Method: POST
 - URL Structure: `/api/kudos`
 - Parameters:
@@ -14,6 +16,7 @@ Creates a new kudo record for another user. Automatically assigns the authentica
   - `message` (string, trimmed, 1-1000 characters)
 
 ## 3. Used Types
+
 - `CreateKudoCommand` (request payload shape) from `src/types.ts`
 - `KudoDTO` (success payload) from `src/types.ts`
 - `ErrorResponseDTO`, `ErrorCode` for standardized error handling
@@ -21,12 +24,14 @@ Creates a new kudo record for another user. Automatically assigns the authentica
 - `ProfileEntity` (optional recipient existence check) from `src/types.ts`
 
 ## 4. Response Details
+
 - 201 Created with `KudoDTO` body on success
 - 400 Bad Request for validation failures (`INVALID_RECIPIENT`, `SELF_KUDO_NOT_ALLOWED`, `INVALID_MESSAGE`, `MESSAGE_TOO_SHORT`, `MESSAGE_TOO_LONG`)
 - 401 Unauthorized when `locals.user` missing
 - 500 Internal Error for unexpected failures (e.g., Supabase client missing, database error)
 
 ## 5. Data Flow
+
 1. Astro middleware supplies `locals.supabase` and `locals.user`.
 2. Handler guards for missing supabase client (500) or unauthenticated user (401).
 3. Parse and validate JSON body with Zod schema:
@@ -41,6 +46,7 @@ Creates a new kudo record for another user. Automatically assigns the authentica
 7. Log unexpected errors with minimal context (`console.error` incl. senderId, recipientId).
 
 ## 6. Security Considerations
+
 - Require authenticated user (`locals.user`) for all operations.
 - Use Supabase client from `locals` to ensure RLS enforcement (`kudos_insert_own`).
 - Validate recipient against `profiles` to avoid leaking existence via errors.
@@ -48,6 +54,7 @@ Creates a new kudo record for another user. Automatically assigns the authentica
 - Trim message to mitigate whitespace abuse; rely on prepared statements via Supabase for injection safety.
 
 ## 7. Error Handling
+
 - Validation (Zod) issues -> map to 400 with `INVALID_MESSAGE`/`MESSAGE_TOO_SHORT`/`MESSAGE_TOO_LONG` or generic `INVALID_RECIPIENT` for recipient problems.
 - Recipient missing -> 400 with `INVALID_RECIPIENT`.
 - Self-kudo attempt -> 400 with `SELF_KUDO_NOT_ALLOWED`.
@@ -56,11 +63,13 @@ Creates a new kudo record for another user. Automatically assigns the authentica
 - Unexpected errors -> log and return 500 `INTERNAL_ERROR`.
 
 ## 8. Performance Considerations
+
 - Single insert + select; ensure select uses `kudos_with_users` view which already bundles sender/recipient details.
 - Optional recipient existence check should leverage indexed `profiles.id` (primary key); minimal overhead.
 - Avoid redundant data fetching by reusing the view query after insert.
 
 ## 9. Implementation Steps
+
 1. Extend `src/lib/services/kudos.service.ts` with `createKudo(client, { senderId, recipientId, message })` that:
    - Verifies recipient exists (fetch from `profiles`).
    - Performs insert into `kudos` with required columns.

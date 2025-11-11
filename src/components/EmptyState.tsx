@@ -4,13 +4,19 @@ export interface EmptyStateProps {
   message?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  onGiveKudos?: () => void;
 }
 
 /**
  * Empty state component displayed when no kudos exist
  * Encourages users to add their first kudo
  */
-export const EmptyState = ({ message = "No kudos yet!", onRefresh, isRefreshing = false }: EmptyStateProps) => {
+export const EmptyState = ({
+  message = "No kudos yet!",
+  onRefresh,
+  isRefreshing = false,
+  onGiveKudos,
+}: EmptyStateProps) => {
   return (
     <section
       role="status"
@@ -39,11 +45,19 @@ export const EmptyState = ({ message = "No kudos yet!", onRefresh, isRefreshing 
         </p>
       </div>
 
-      {onRefresh && (
-        <Button onClick={onRefresh} disabled={isRefreshing} variant="outline">
-          {isRefreshing ? "Refreshing..." : "Refresh"}
-        </Button>
-      )}
+      <div className="flex gap-3">
+        {onGiveKudos && (
+          <Button onClick={onGiveKudos} size="lg">
+            Give Kudos
+          </Button>
+        )}
+
+        {onRefresh && (
+          <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="lg">
+            {isRefreshing ? "Refreshing..." : "Refresh"}
+          </Button>
+        )}
+      </div>
     </section>
   );
 };

@@ -1,7 +1,9 @@
 # Auth implementation plan
+
 Comprehensive outline for wiring the existing Astro+Supabase login UI to the backend, aligning with the PRD, auth spec, and current codebase state.
 
 ## Discussion
+
 1. **Q:** Which OAuth provider(s) should be enabled? **A:** GitHub only (via `SUPABASE_OAUTH_PROVIDER=github`).
 2. **Q:** Are Supabase project credentials already available to Astro? **A:** Yes, values live in the existing `.env` file.
 3. **Q:** How should unauthenticated API calls behave? **A:** Redirect to `/login`, preserving SSR expectations.
@@ -14,6 +16,7 @@ Comprehensive outline for wiring the existing Astro+Supabase login UI to the bac
 10. **Q:** Should we add logging/telemetry on callback failures? **A:** No; surface user-friendly errors like `callback_failed` without internal details.
 
 ## Implementation steps
+
 1. **Supabase configuration:** Register `https://<site>/auth/callback` (and local dev URL) in Supabase OAuth redirect URLs; confirm GitHub provider is enabled.
 2. **Environment audit:** Ensure `.env` exposes `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_OAUTH_PROVIDER`, and `SITE_URL`; document required values if missing.
 3. **Server client utilities:** Review `src/db/supabase.client.ts`; extend/export helpers to create server clients and return `{ supabase, session }` for both pages and API routes.

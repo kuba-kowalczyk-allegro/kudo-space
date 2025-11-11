@@ -9,6 +9,7 @@ export interface AppHeaderProps {
   userName?: string;
   userAvatar?: string | null;
   isAuthenticated?: boolean;
+  onGiveKudos?: () => void;
 }
 
 /**
@@ -34,6 +35,7 @@ export const AppHeader = ({
   userName,
   userAvatar,
   isAuthenticated = false,
+  onGiveKudos,
 }: AppHeaderProps) => {
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -43,6 +45,8 @@ export const AppHeader = ({
         </div>
 
         <div className="flex items-center gap-3">
+          {isAuthenticated && onGiveKudos && <Button onClick={onGiveKudos}>Give Kudos</Button>}
+
           <ManualRefreshButton onClick={onRefresh} disabled={isRefreshing} />
 
           {isAuthenticated && userName && (

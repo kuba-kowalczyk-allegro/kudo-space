@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: Delete Kudo
 
 ## 1. Endpoint Overview
+
 Deletes an existing kudo by ID. Only the original sender is authorized to remove it. Returns a confirmation payload to support UI updates.
 
 ## 2. Request Details
+
 - HTTP Method: DELETE
 - URL Structure: `/api/kudos/{id}`
 - Parameters:
@@ -12,12 +14,14 @@ Deletes an existing kudo by ID. Only the original sender is authorized to remove
 - Request Body: none
 
 ## 3. Used Types
+
 - `DeleteKudoResponseDTO` (success payload) from `src/types.ts`
 - `ErrorResponseDTO`, `ErrorCode` for error handling
 - `SupabaseClient` from `src/db/supabase.client.ts`
 - (Optional) `KudoDTO` if service reuses mapping when verifying ownership
 
 ## 4. Response Details
+
 - 200 OK with `{ message: string; id: string }`
 - 400 Bad Request for invalid UUID (`INVALID_UUID`)
 - 401 Unauthorized when `locals.user` missing
@@ -26,6 +30,7 @@ Deletes an existing kudo by ID. Only the original sender is authorized to remove
 - 500 Internal Error for unexpected failures or missing Supabase client
 
 ## 5. Data Flow
+
 1. Middleware supplies `locals.supabase` and `locals.user`.
 2. Handler verifies both; respond with 500 or 401 as appropriate.
 3. Validate `id` path parameter with Zod UUID schema.
@@ -37,12 +42,14 @@ Deletes an existing kudo by ID. Only the original sender is authorized to remove
 6. Log unexpected errors with contextual metadata (`console.error` including kudo id and user id).
 
 ## 6. Security Considerations
+
 - Require authenticated user.
 - Perform server-side ownership check before executing delete, even though RLS enforces it, to surface appropriate `FORBIDDEN` error instead of generic failure.
 - Use Supabase client from locals to ensure RLS policies apply (`kudos_delete_own`).
 - Reject malformed UUIDs before hitting the database to reduce attack surface.
 
 ## 7. Error Handling
+
 - Invalid UUID parsing -> 400 `INVALID_UUID`.
 - Missing Supabase client -> 500 `INTERNAL_ERROR`.
 - Missing authenticated user -> 401 `UNAUTHORIZED`.
@@ -51,11 +58,13 @@ Deletes an existing kudo by ID. Only the original sender is authorized to remove
 - Supabase errors -> log and return 500 `INTERNAL_ERROR` with generic message.
 
 ## 8. Performance Considerations
+
 - Single fetch + delete; both index-supported via primary key.
 - Reuse existing mapping logic if we fetch from `kudos_with_users` to avoid redundant transformations.
 - Avoid multiple round-trips by using `select().single()` prior to delete; ensures minimal payload size.
 
 ## 9. Implementation Steps
+
 1. Extend `src/lib/services/kudos.service.ts` with helper(s):
    - `getKudoById(client, id)` to retrieve minimal data (`id`, `sender_id`) and optionally reuse mapping utility if needed.
    - `deleteKudo(client, { id, requesterId })` to encapsulate fetch-then-delete logic and return `{ id }`.

@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { Toaster } from "@/components/ui/sonner";
 
 interface Props {
   title?: string;
@@ -23,6 +24,9 @@ const { title = "KudoSpace" } = Astro.props;
 
     <!-- Main content -->
     <slot />
+
+    <!-- Toast notifications -->
+    <Toaster client:load />
   </body>
 </html>
 
