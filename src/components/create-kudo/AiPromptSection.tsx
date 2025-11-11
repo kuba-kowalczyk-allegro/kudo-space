@@ -27,12 +27,9 @@ function PromptCharacterCounter({ current, min, max }: { current: number; min: n
 /**
  * AI Prompt Section component
  * Provides UI for generating kudo messages using AI
- * Currently shows AI_SERVICE_UNAVAILABLE error as the endpoint is not ready
+ * Integrates with the /api/ai/generate-message endpoint
  */
-export function AiPromptSection({
-  onMessageGenerated, // eslint-disable-line @typescript-eslint/no-unused-vars
-  disabled,
-}: AiPromptSectionProps) {
+export function AiPromptSection({ onMessageGenerated, disabled }: AiPromptSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -47,34 +44,60 @@ export function AiPromptSection({
     setIsGenerating(true);
     setError(null);
 
-    // Simulate AI service unavailable error as specified in requirements
-    setTimeout(() => {
-      setError("AI service is currently unavailable. Please try again later or write your message manually.");
-      setIsGenerating(false);
-    }, 500);
+    try {
+      const response = await fetch("/api/ai/generate-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmedPrompt }),
+      });
 
-    // TODO: Implement actual AI generation when endpoint is ready
-    // try {
-    //   const response = await fetch("/api/ai/generate-message", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ prompt: trimmedPrompt }),
-    //   });
-    //
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     throw new Error(errorData.error.message);
-    //   }
-    //
-    //   const data = await response.json();
-    //   onMessageGenerated(data.message);
-    //   setPrompt("");
-    //   setIsOpen(false);
-    // } catch (err) {
-    //   setError(err instanceof Error ? err.message : "Failed to generate message");
-    // } finally {
-    //   setIsGenerating(false);
-    // }
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorCode = errorData.error?.code;
+        const errorMessage = errorData.error?.message || "Failed to generate message";
+
+        // Map error codes to user-friendly messages
+        switch (errorCode) {
+          case "PROMPT_TOO_SHORT":
+            setError(`Your prompt is too short. Please provide at least ${MIN_PROMPT_LENGTH} characters.`);
+            break;
+          case "PROMPT_TOO_LONG":
+            setError(`Your prompt is too long. Please keep it under ${MAX_PROMPT_LENGTH} characters.`);
+            break;
+          case "INVALID_PROMPT":
+            setError("Invalid prompt. Please check your input and try again.");
+            break;
+          case "AI_SERVICE_UNAVAILABLE":
+            setError("AI service is currently unavailable. Please try again later or write your message manually.");
+            break;
+          case "UNAUTHORIZED":
+            setError("Authentication required. Please log in and try again.");
+            break;
+          case "INTERNAL_ERROR":
+            setError("An unexpected error occurred. Please try again.");
+            break;
+          default:
+            setError(errorMessage);
+        }
+        return;
+      }
+
+      const data = await response.json();
+
+      // Success: notify parent component with the generated message
+      onMessageGenerated(data.message);
+
+      // Reset form state
+      setPrompt("");
+      setIsOpen(false);
+    } catch (err) {
+      // Handle network errors or unexpected failures
+      setError(
+        err instanceof Error ? err.message : "Failed to generate message. Please check your connection and try again."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
