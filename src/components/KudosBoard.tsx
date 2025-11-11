@@ -1,10 +1,22 @@
 import { useCallback, useState } from "react";
 import { useInfiniteKudos } from "./hooks/useInfiniteKudos.ts";
+import { useDeleteKudoMutation } from "./hooks/useDeleteKudoMutation.ts";
 import { AppHeader } from "./AppHeader.tsx";
 import { EmptyState } from "./EmptyState.tsx";
 import { KudoGrid } from "./KudoGrid.tsx";
 import { KudoSkeleton } from "./KudoSkeleton.tsx";
 import { CreateKudoModal } from "./create-kudo/index.ts";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog.tsx";
+import { toast } from "@/lib/toast.ts";
 import type { KudoDTO } from "../types.ts";
 
 export interface KudosBoardProps {
@@ -25,13 +37,36 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
   );
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; kudoId: string | null }>({
+    isOpen: false,
+    kudoId: null,
+  });
+
+  const { mutate: deleteKudoMutate, isLoading: isDeletingKudo } = useDeleteKudoMutation();
 
   const handleDeleteKudo = useCallback((id: string) => {
-    // TODO: Implement delete functionality when DELETE endpoint is available
-    // For now, just log the delete action
-    // In the future: call delete API and update the items list
-    // eslint-disable-next-line no-console
-    console.log("Delete kudo:", id);
+    setDeleteConfirmation({ isOpen: true, kudoId: id });
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteConfirmation.kudoId) return;
+
+    try {
+      await deleteKudoMutate(deleteConfirmation.kudoId);
+      toast.success("Kudo deleted successfully");
+      // Refresh the board to remove the deleted kudo
+      refresh();
+    } catch {
+      // Error handling is already done in the mutation hook
+      // Show user-friendly error message
+      toast.error("Failed to delete kudo. Please try again.");
+    } finally {
+      setDeleteConfirmation({ isOpen: false, kudoId: null });
+    }
+  }, [deleteConfirmation.kudoId, deleteKudoMutate, refresh]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteConfirmation({ isOpen: false, kudoId: null });
   }, []);
 
   const handleGiveKudos = useCallback(() => {
@@ -114,6 +149,30 @@ export const KudosBoard = ({ currentUserId, userName, userAvatar, isAuthenticate
           onSuccess={handleCreateKudoSuccess}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmation.isOpen} onOpenChange={(open) => !open && handleDeleteCancel()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Kudo</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this kudo? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleDeleteCancel} disabled={isDeletingKudo}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeletingKudo}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeletingKudo ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
