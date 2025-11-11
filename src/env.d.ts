@@ -35,7 +35,14 @@ interface ImportMetaEnv {
   readonly SUPABASE_SERVICE_ROLE_KEY: string;
   readonly SUPABASE_OAUTH_PROVIDER: string;
   readonly SITE_URL: string;
+  /** SERVER-ONLY: OpenRouter API key for AI completion service */
   readonly OPENROUTER_API_KEY: string;
+  /** SERVER-ONLY: OpenRouter API URL (defaults to https://openrouter.ai/api/v1) */
+  readonly OPENROUTER_API_URL?: string;
+  /** SERVER-ONLY: Default model for OpenRouter requests (e.g., meta-llama/llama-3.3-8b-instruct:free) */
+  readonly OPENROUTER_DEFAULT_MODEL?: string;
+  /** SERVER-ONLY: Request timeout in milliseconds for OpenRouter API calls */
+  readonly OPENROUTER_TIMEOUT_MS?: string;
   readonly GITHUB_CLIENT_ID: string;
   readonly GITHUB_CLIENT_SECRET: string;
 }
