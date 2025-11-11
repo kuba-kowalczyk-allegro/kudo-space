@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "../../db/supabase.client.ts";
 import type { Database } from "../../db/database.types.ts";
-import type { KudoDTO, KudoListResponseDTO } from "../../types.ts";
+import type { ErrorCode, ErrorDetails, KudoDTO, KudoListResponseDTO } from "../../types.ts";
 
 const KUDOS_VIEW = "kudos_with_users" satisfies keyof Database["public"]["Views"];
 
@@ -91,6 +91,26 @@ const mapRowToDto = (row: KudosWithUsersRow): KudoDTO => {
   } satisfies KudoDTO;
 };
 
+export class CreateKudoServiceError extends Error {
+  readonly code: ErrorCode;
+  readonly status: number;
+  readonly details?: ErrorDetails;
+
+  constructor(code: ErrorCode, message: string, status: number, details?: ErrorDetails) {
+    super(message);
+    this.name = "CreateKudoServiceError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
+  }
+}
+
+export interface CreateKudoParams {
+  senderId: string;
+  recipientId: string;
+  message: string;
+}
+
 export const listKudos = async (
   client: SupabaseClient,
   { limit, offset }: ListKudosParams
@@ -118,6 +138,67 @@ export const listKudos = async (
       total,
     },
   } satisfies KudoListResponseDTO;
+};
+
+export const createKudo = async (
+  client: SupabaseClient,
+  { senderId, recipientId, message }: CreateKudoParams
+): Promise<KudoDTO> => {
+  const { data: recipient, error: recipientError } = await client
+    .from("profiles")
+    .select("id")
+    .eq("id", recipientId)
+    .maybeSingle();
+
+  if (recipientError) {
+    throw new Error(recipientError.message);
+  }
+
+  if (!recipient) {
+    throw new CreateKudoServiceError("INVALID_RECIPIENT", "Recipient does not exist.", 400);
+  }
+
+  const { data: insertedKudo, error: insertError } = await client
+    .from("kudos")
+    .insert({
+      sender_id: senderId,
+      recipient_id: recipientId,
+      message,
+    })
+    .select("id")
+    .single();
+
+  if (insertError) {
+    if (insertError.code === "23503") {
+      throw new CreateKudoServiceError("INVALID_RECIPIENT", "Recipient does not exist.", 400);
+    }
+
+    if (insertError.code === "42501") {
+      throw new CreateKudoServiceError("FORBIDDEN", "You are not allowed to create kudos.", 403);
+    }
+
+    throw new Error(insertError.message);
+  }
+
+  if (!insertedKudo) {
+    throw new Error("Failed to insert kudo record.");
+  }
+
+  const { data: createdKudoRow, error: fetchError } = await client
+    .from(KUDOS_VIEW)
+    .select(KUDOS_COLUMNS)
+    .eq("id", insertedKudo.id)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (!createdKudoRow) {
+    throw new Error("Failed to retrieve newly created kudo.");
+  }
+
+  return mapRowToDto(createdKudoRow);
 };
 
 export type { ListKudosParams };
