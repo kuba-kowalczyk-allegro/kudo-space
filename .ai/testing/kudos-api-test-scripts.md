@@ -287,3 +287,174 @@ runKudosTestSuite();
 - [ ] Empty message yields `400 MESSAGE_TOO_SHORT`.
 - [ ] Messages over 1000 characters return `400 MESSAGE_TOO_LONG`.
 - [ ] Missing cookies/credentials returns `401 UNAUTHORIZED`.
+
+---
+
+# DELETE Kudo API Testing Scripts
+
+## Combined DELETE Test Suite
+
+Paste this into Chrome DevTools Console (while authenticated):
+
+```javascript
+async function runDeleteKudosTestSuite() {
+  console.log('🚀 Starting DELETE Kudos API Test Suite...');
+  
+  // Helper to create a test kudo we can delete
+  async function createTestKudo() {
+    const usersRes = await fetch('/api/users?exclude_me=true');
+    const usersData = await usersRes.json();
+    const otherUser = usersData.data?.[0];
+    
+    if (!otherUser) {
+      console.error('❌ Need at least one other user in database');
+      return null;
+    }
+    
+    const response = await fetch('/api/kudos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipient_id: otherUser.id,
+        message: 'Test kudo for deletion testing 🧪'
+      })
+    });
+    
+    const data = await response.json();
+    return data.id ? data : null;
+  }
+  
+  // Test 1: Successful deletion (200)
+  console.log('\n📋 Test 1: Successful deletion');
+  try {
+    const testKudo = await createTestKudo();
+    if (!testKudo) {
+      console.error('❌ Failed to create test kudo');
+    } else {
+      const response = await fetch(`/api/kudos/${testKudo.id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      console.log('Status:', response.status);
+      console.log('Response:', data);
+      
+      if (response.status === 200) {
+        console.log('✅ PASS: Successfully deleted kudo');
+      } else {
+        console.warn(`⚠️ FAIL: Expected 200 but got ${response.status}`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+  }
+  
+  // Test 2: Invalid UUID format (400 INVALID_UUID)
+  console.log('\n📋 Test 2: Invalid UUID format');
+  try {
+    const response = await fetch('/api/kudos/not-a-valid-uuid', {
+      method: 'DELETE'
+    });
+    const data = await response.json();
+    
+    console.log('Status:', response.status);
+    console.log('Response:', data);
+    
+    if (response.status === 400 && data.error?.code === 'INVALID_UUID') {
+      console.log('✅ PASS: Invalid UUID correctly rejected');
+    } else {
+      console.warn(`⚠️ FAIL: Expected 400 INVALID_UUID but got ${response.status} ${data.error?.code}`);
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+  }
+  
+  // Test 3: Kudo not found (404 KUDO_NOT_FOUND)
+  console.log('\n📋 Test 3: Kudo not found');
+  try {
+    const response = await fetch('/api/kudos/99999999-9999-9999-9999-999999999999', {
+      method: 'DELETE'
+    });
+    const data = await response.json();
+    
+    console.log('Status:', response.status);
+    console.log('Response:', data);
+    
+    if (response.status === 404 && data.error?.code === 'KUDO_NOT_FOUND') {
+      console.log('✅ PASS: Non-existent kudo correctly handled');
+    } else {
+      console.warn(`⚠️ FAIL: Expected 404 KUDO_NOT_FOUND but got ${response.status} ${data.error?.code}`);
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+  }
+  
+  // Test 4: Unauthorized deletion attempt (403 FORBIDDEN)
+  console.log('\n📋 Test 4: Unauthorized deletion attempt');
+  try {
+    // Get a kudo that belongs to someone else
+    const kudosRes = await fetch('/api/kudos');
+    const kudosData = await kudosRes.json();
+    
+    const usersRes = await fetch('/api/users?exclude_me=false');
+    const usersData = await usersRes.json();
+    const myId = usersData.data?.[0]?.id;
+    
+    const otherUserKudo = kudosData.data?.find(k => k.sender_id !== myId);
+    
+    if (!otherUserKudo) {
+      console.warn('⚠️ SKIP: No kudos from other users found for testing');
+    } else {
+      const response = await fetch(`/api/kudos/${otherUserKudo.id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      console.log('Status:', response.status);
+      console.log('Response:', data);
+      
+      if (response.status === 403 && data.error?.code === 'FORBIDDEN') {
+        console.log('✅ PASS: Unauthorized deletion correctly blocked');
+      } else {
+        console.warn(`⚠️ FAIL: Expected 403 FORBIDDEN but got ${response.status} ${data.error?.code}`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+  }
+  
+  // Test 5: Missing authentication (401 UNAUTHORIZED)
+  console.log('\n📋 Test 5: Missing authentication');
+  try {
+    const testKudo = await createTestKudo();
+    if (!testKudo) {
+      console.warn('⚠️ SKIP: Could not create test kudo');
+    } else {
+      const response = await fetch(`/api/kudos/${testKudo.id}`, {
+        method: 'DELETE',
+        credentials: 'omit'
+      });
+      const data = await response.json();
+      
+      console.log('Status:', response.status);
+      console.log('Response:', data);
+      
+      if (response.status === 401 && data.error?.code === 'UNAUTHORIZED') {
+        console.log('✅ PASS: Unauthenticated request correctly rejected');
+      } else {
+        console.warn(`⚠️ FAIL: Expected 401 UNAUTHORIZED but got ${response.status} ${data.error?.code}`);
+      }
+      
+      // Cleanup: delete the test kudo with auth
+      await fetch(`/api/kudos/${testKudo.id}`, { method: 'DELETE' });
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+  }
+  
+  console.log('\n✨ DELETE Kudos Test Suite Complete!');
+}
+
+// Run the test suite
+runDeleteKudosTestSuite();
+```

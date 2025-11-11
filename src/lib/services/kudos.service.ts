@@ -105,6 +105,20 @@ export class CreateKudoServiceError extends Error {
   }
 }
 
+export class DeleteKudoServiceError extends Error {
+  readonly code: ErrorCode;
+  readonly status: number;
+  readonly details?: ErrorDetails;
+
+  constructor(code: ErrorCode, message: string, status: number, details?: ErrorDetails) {
+    super(message);
+    this.name = "DeleteKudoServiceError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
+  }
+}
+
 export interface CreateKudoParams {
   senderId: string;
   recipientId: string;
@@ -199,6 +213,67 @@ export const createKudo = async (
   }
 
   return mapRowToDto(createdKudoRow);
+};
+
+/**
+ * Retrieves a kudo by its ID to verify existence and ownership
+ * Used for authorization checks before deletion
+ */
+export const getKudoById = async (
+  client: SupabaseClient,
+  id: string
+): Promise<{ id: string; sender_id: string } | null> => {
+  const { data, error } = await client.from("kudos").select("id, sender_id").eq("id", id).maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export interface DeleteKudoParams {
+  id: string;
+  requesterId: string;
+}
+
+/**
+ * Deletes a kudo after verifying ownership
+ * Only the sender can delete their own kudo
+ * Returns the deleted kudo ID on success
+ */
+export const deleteKudo = async (
+  client: SupabaseClient,
+  { id, requesterId }: DeleteKudoParams
+): Promise<{ id: string }> => {
+  // First, verify the kudo exists and get ownership information
+  const kudo = await getKudoById(client, id);
+
+  if (!kudo) {
+    throw new DeleteKudoServiceError("KUDO_NOT_FOUND", "Kudo does not exist.", 404);
+  }
+
+  // Verify ownership - only sender can delete their own kudo
+  if (kudo.sender_id !== requesterId) {
+    throw new DeleteKudoServiceError("FORBIDDEN", "You are not allowed to delete this kudo.", 403, {
+      sender_id: kudo.sender_id,
+      requester_id: requesterId,
+    });
+  }
+
+  // Perform deletion
+  const { error: deleteError } = await client.from("kudos").delete().eq("id", id);
+
+  if (deleteError) {
+    // RLS policies should prevent unauthorized deletion, but handle other errors
+    if (deleteError.code === "42501") {
+      throw new DeleteKudoServiceError("FORBIDDEN", "You are not allowed to delete this kudo.", 403);
+    }
+
+    throw new Error(deleteError.message);
+  }
+
+  return { id };
 };
 
 export type { ListKudosParams };
