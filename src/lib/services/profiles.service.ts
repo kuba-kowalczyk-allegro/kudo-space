@@ -2,9 +2,16 @@ import type { User } from "@supabase/supabase-js";
 
 import type { SupabaseClient } from "../../db/supabase.client.ts";
 import type { Database } from "../../db/database.types.ts";
+import type { UserProfileDTO } from "../../types.ts";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
+
+interface ListUsersParams {
+  requesterId: string;
+  search?: string;
+  excludeMe: boolean;
+}
 
 /**
  * Ensures a user profile exists in the database
@@ -96,3 +103,44 @@ function extractDisplayName(user: User): string {
   // Last resort: use "User" with first 8 chars of ID
   return `User ${user.id.substring(0, 8)}`;
 }
+
+/**
+ * Lists user profiles with optional filtering
+ * Supports case-insensitive search and excluding the requesting user
+ *
+ * @param supabase - Supabase client instance with active session
+ * @param params - Query parameters for filtering users
+ * @returns Array of user profiles matching the criteria
+ */
+export async function listUsers(supabase: SupabaseClient, params: ListUsersParams): Promise<UserProfileDTO[]> {
+  const { requesterId, search, excludeMe } = params;
+
+  // Build query to select profile fields
+  let query = supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url, email")
+    .order("display_name", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  // Exclude current user if requested
+  if (excludeMe) {
+    query = query.neq("id", requesterId);
+  }
+
+  // Apply case-insensitive search filter if provided
+  if (search && search.trim().length > 0) {
+    const searchPattern = `%${search.trim()}%`;
+    query = query.or(`display_name.ilike.${searchPattern},email.ilike.${searchPattern}`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Map database rows to UserProfileDTO (fields align, so direct cast is safe)
+  return (data ?? []) as UserProfileDTO[];
+}
+
+export type { ListUsersParams };
