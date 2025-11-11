@@ -40,18 +40,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     const validation = OAuthStartSchema.safeParse(body);
 
     if (!validation.success) {
+      // Log validation failure server-side with context
       // eslint-disable-next-line no-console
-      console.error("OAuth validation failed:", validation.error.format());
-      return new Response(
-        JSON.stringify({
-          error: "Invalid request data",
-          details: validation.error.format(),
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      console.error("OAuth validation failed:", {
+        errors: validation.error.format(),
+        provider: body.provider,
+        redirectTo: body.redirectTo,
+      });
+      // Redirect to login page with error code per auth-spec.md
+      return redirect("/login?error=invalid_request", 303);
     }
 
     const { provider, redirectTo } = validation.data;
@@ -61,15 +58,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     try {
       assertProviderAllowed(provider, configuredProvider);
     } catch (error) {
-      return new Response(
-        JSON.stringify({
-          error: error instanceof Error ? error.message : "Provider not allowed",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      // Log provider mismatch server-side
+      // eslint-disable-next-line no-console
+      console.warn("Provider not allowed:", {
+        requestedProvider: provider,
+        configuredProvider,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      // Redirect to login page with error code per auth-spec.md
+      return redirect("/login?error=invalid_request", 303);
     }
 
     // Sanitize redirect URL to prevent open redirects
@@ -92,15 +89,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     });
 
     if (error) {
-      return new Response(
-        JSON.stringify({
-          error: "Failed to initiate authentication",
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      // Log Supabase OAuth error server-side with context
+      // eslint-disable-next-line no-console
+      console.error("Supabase OAuth initialization failed:", {
+        provider,
+        error: error.message,
+        callbackUrl: callbackUrl.toString(),
+      });
+      // Redirect to login page with provider error per auth-spec.md
+      return redirect("/login?error=provider_unavailable", 303);
     }
 
     // Redirect to OAuth provider (GitHub)
@@ -108,24 +105,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       return redirect(data.url, 303);
     }
 
-    return new Response(
-      JSON.stringify({
-        error: "No redirect URL received from OAuth provider",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-  } catch {
-    return new Response(
-      JSON.stringify({
-        error: "Internal server error",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // No URL returned from Supabase - log and redirect with generic error
+    // eslint-disable-next-line no-console
+    console.error("No OAuth URL returned from Supabase:", {
+      provider,
+      hasData: !!data,
+    });
+    return redirect("/login?error=internal_error", 303);
+  } catch (error) {
+    // Log unexpected errors server-side without exposing details to client
+    // eslint-disable-next-line no-console
+    console.error("Unexpected error in OAuth start:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return redirect("/login?error=internal_error", 303);
   }
 };
