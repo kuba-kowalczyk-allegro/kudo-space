@@ -56,11 +56,31 @@ const reactConfig = tseslint.config({
   },
 });
 
+const vitestGlobals = {
+  afterAll: "readonly",
+  afterEach: "readonly",
+  beforeAll: "readonly",
+  beforeEach: "readonly",
+  describe: "readonly",
+  expect: "readonly",
+  it: "readonly",
+  test: "readonly",
+  vi: "readonly",
+};
+
+const vitestConfig = tseslint.config({
+  files: ["src/**/*.{test,spec}.{ts,tsx}", "src/tests/**/*.{ts,tsx}"],
+  languageOptions: {
+    globals: vitestGlobals,
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
+  vitestConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

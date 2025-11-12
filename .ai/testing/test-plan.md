@@ -1,17 +1,20 @@
 # KudoSpace Test Plan
 
 ## 1. Introduction and Testing Objectives
+
 - Ensure the KudoSpace MVP meets quality expectations across authentication, kudos board, create/delete flows, and the optional AI integration.
 - Primary objectives: confirm alignment with PRD requirements (FR-001–FR-010), validate stability under multi-user usage, protect data security, and guarantee resilience of external services (Supabase, OpenRouter).
 - Plan scope covers both the frontend layer (Astro + React + Tailwind) and backend services (Astro API routes, Supabase, OpenRouter service).
 
 ## 2. Test Scope
+
 - User personas: unauthenticated visitor, authenticated user without kudos, active sender, recipient.
 - Functional flows: login/logout, kudos board retrieval, pagination, creating kudos, deleting own kudos, AI message generation, recipient filtering, error messaging.
 - Integrations: Supabase (auth, RLS on `kudos`, `profiles`, `kudos_with_users` view), OpenRouter AI endpoint, Astro middleware.
 - Out of scope: features not defined in the PRD (e.g., editing, multiple boards), CI/CD pipelines, infrastructure beyond test-environment configuration.
 
 ## 3. Test Types
+
 - Unit tests: `kudos.service`, `profiles.service`, `openrouter.service`, Zod validation helpers, hooks (`useInfiniteKudos`, `useCreateKudoMutation`).
 - Integration tests: API routes (`/api/kudos`, `/api/kudos/{id}`, `/api/users`, `/api/ai/generate-message`, `/api/auth/oauth-start`), auth middleware, Supabase connectivity (using a test database or Supabase CLI).
 - End-to-end (E2E) tests: browser scenarios (Playwright) covering login, kudos create/delete, infinite scroll, AI generation, error handling.
@@ -19,6 +22,7 @@
 - Performance and resilience tests: simulate OpenRouter failures (timeout, rate limit) and Supabase outages (missing client in `locals`).
 
 ## 4. Test Scenarios for Key Features
+
 1. **Authentication**
    - Load `/login` without a session, verify GitHub option is visible.
    - Successful OAuth flow (mock Supabase) returning to the main board.
@@ -56,12 +60,14 @@
    - Verify policies: user without proper role cannot insert/delete; only authors receive `canDelete` true.
 
 ## 5. Test Environment
+
 - **Local (dev):** Astro dev server (`npm run dev`), local Supabase (Supabase CLI `supabase start`), `.env.local` with test OpenRouter key.
 - **Test/Staging:** Docker deployment on DigitalOcean with separate Supabase project, GitHub test account, OpenRouter key with restricted quota.
 - **Database:** Dedicated instances with migrations (`supabase/migrations`), seed data from `supabase/seed.sql` for test users and sample kudos.
 - **Data control:** reset database before integration/E2E runs (Supabase CLI scripts or transactional migrations).
 
 ## 6. Testing Tools
+
 - **Unit/Integration:** Vitest + React Testing Library, MSW for fetch mocking, Supabase test harness/`@supabase/supabase-js` stubs.
 - **E2E:** Playwright (headless + trace viewer), optional GitHub Actions integration.
 - **API/Contract:** Newman/Postman collections or Pact tests for `/api/kudos`, `/api/ai` with OpenRouter mocks.
