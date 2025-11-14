@@ -384,3 +384,9 @@ describe("deleteKudo", () => {
     } satisfies Pick<DeleteKudoServiceError, "code" | "status">);
   });
 });
+
+describe("workflow guard", () => {
+  it("fails intentionally to exercise CI protections", () => {
+    expect(true).toBe(false);
+  });
+});
