@@ -11,7 +11,7 @@ export default mergeConfig(
       include: ["src/**/*.{test,spec}.{ts,tsx}"],
       globals: true,
       coverage: {
-        reporter: ["text", "html"],
+        reporter: ["text", "html", "json-summary"],
         include: ["src/**/*.{ts,tsx}"],
         exclude: ["src/tests/**", "src/**/*.d.ts", "src/**/*.stories.tsx", "src/**/*.stories.ts"],
       },
