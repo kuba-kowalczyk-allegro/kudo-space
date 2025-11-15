@@ -31,8 +31,7 @@ declare global {
 interface ImportMetaEnv {
   readonly SUPABASE_URL: string;
   readonly SUPABASE_KEY: string;
-  /** SERVER-ONLY: Never expose to client. Used only for admin operations bypassing RLS. */
-  readonly SUPABASE_SERVICE_ROLE_KEY: string;
+
   readonly SUPABASE_OAUTH_PROVIDER: string;
   readonly SITE_URL: string;
   /** SERVER-ONLY: OpenRouter API key for AI completion service */

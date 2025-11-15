@@ -16,6 +16,11 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.test
+
+# playwwright
+tests/e2e/.auth/*
+tests/e2e/.reports/*
 
 # macOS-specific files
 .DS_Store

@@ -45,7 +45,7 @@ export const KudoGrid = ({ kudos, hasMore, isLoadingMore, onLoadMore, onDeleteKu
   }, [hasMore, isLoadingMore, onLoadMore]);
 
   return (
-    <section role="feed" aria-label="Kudos feed" className="w-full">
+    <section role="feed" aria-label="Kudos feed" data-testid="kudos-feed" className="w-full">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {kudos.map((kudo) => (
           <KudoCard key={kudo.id} kudo={kudo} onDelete={onDeleteKudo} />

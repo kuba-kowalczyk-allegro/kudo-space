@@ -8,6 +8,7 @@
 - [Tech Stack](#-tech-stack)
 - [Getting Started Locally](#-getting-started-locally)
 - [Available Scripts](#-available-scripts)
+- [Playwright E2E Tests](#-playwright-e2e-tests)
 - [Project Scope](#-project-scope)
 - [Project Status](#-project-status)
 - [License](#-license)
@@ -120,6 +121,15 @@ KudoSpace creates a centralized and visible platform for sharing praise, enablin
 | `npm run lint`     | Run ESLint to check for code issues          |
 | `npm run lint:fix` | Run ESLint and automatically fix issues      |
 | `npm run format`   | Format code using Prettier                   |
+| `npm run test:e2e` | Run Playwright end-to-end tests              |
+| `npm run test:e2e:ui` | Launch Playwright UI mode for debugging  |
+
+## 🧪 Playwright E2E Tests
+
+- Copy `.env.test.example` to `.env.test` and fill in Supabase credentials for the dedicated testing project; `.env.test` stays local thanks to `.gitignore`.
+- Install browsers if needed: `npx playwright install --with-deps`.
+- Start the app (e.g., `npm run dev` or `npm run preview`) and then execute `npm run test:e2e`.
+- The suite relies on pre-provisioned Supabase auth users and the manual seed script described in `.ai/testing/e2e-plan.md`.
 
 ## 🎯 Project Scope
 
