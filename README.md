@@ -58,8 +58,8 @@ KudoSpace creates a centralized and visible platform for sharing praise, enablin
 
 ### CI/CD and Hosting
 
-- **GitHub Actions** - CI/CD pipelines
-- **DigitalOcean** - Docker-based application hosting
+- **GitHub Actions** - automated testing and quality checks
+- **Vercel** - preview and production hosting
 
 ## 🚀 Getting Started Locally
 
@@ -109,6 +109,10 @@ KudoSpace creates a centralized and visible platform for sharing praise, enablin
    ```
 
    The application should now be running at `http://localhost:3000`
+
+## 🌐 Deployment on Vercel
+
+Use the combination of vercel secrets and github action secrets. Use The github action workflow to deploy to vercel.
 
 ## 📜 Available Scripts
 

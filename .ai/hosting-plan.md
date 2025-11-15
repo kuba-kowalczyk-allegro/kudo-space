@@ -5,16 +5,17 @@
 - Current Astro config (`astro.config.mjs`): server output with `@astrojs/node` standalone adapter and Tailwind Vite plugin. To run on Vercel we will swap to the official Vercel adapter.
 - Package scripts (`package.json`): `astro dev`, `astro build`, Vitest test suites, ESLint, Prettier. No Vercel-specific scripts yet; Astro defaults work with Vercel.
 - Dependencies: includes Supabase client, @astrojs/node; lacking `@astrojs/vercel`. No Vercel CLI or adapters installed yet.
-- Environment variables (`.env.example`): Supabase keys, OAuth provider info, site URL, OpenRouter API key, GitHub OAuth. No separation between local/test/prod; SITE_URL currently points to localhost.
+- Testing: Playwright end-to-end suite configured; GitHub Actions `test` environment supplies `.env.test` secrets.
+- Environment variables (`.env.example`, `.env.test.example`): Supabase keys, OAuth provider info, site URL, OpenRouter API key, GitHub OAuth. Local development and test share the same credentials, while production will use distinct values tracked via `.env.production` (not committed).
 
 ## 2. Environment Strategy
-- Keep two Supabase projects: one for production and one shared development/testing project used by both local work and automated E2E runs.
-- Define three environment modes:
-  - **Local development**: `.env.local` in repo root. Point Supabase keys to the development/testing project. Use `SITE_URL=http://localhost:4321`. Keep OpenRouter key optional.
-  - **E2E tests**: CI-only environment file (e.g. `.env.test` stored in GitHub Actions secrets). Reuse the development/testing Supabase project to avoid extra maintenance. Set `SITE_URL` to Playwright test origin (likely `http://127.0.0.1:4321`). Seed minimal fixtures before tests and clean up afterwards if necessary.
-  - **Production (Vercel)**: Configure Vercel Production environment variables with production Supabase keys and production domain `SITE_URL`. Preview deployments (Vercel Preview env) will leverage the production Supabase DB unless a staging DB is later introduced.
-- Add `env.d.ts` updates if new variables appear.
-- Document environment variable matrix in `/README.md` and ensure `.env.example` lists placeholders for any new variables (e.g. Vercel tokens for CI).
+- Maintain two Supabase projects: one shared development/testing project and one dedicated production project.
+- Use three environment files with mirrored key sets:
+  - **Local development**: `.env` (documented in `.env.example`). Points to the shared development/testing Supabase project and GitHub OAuth app. `SITE_URL=http://localhost:4321`.
+  - **E2E tests**: `.env.test` (documented in `.env.test.example`). Loaded in GitHub Actions via the `test` environment secrets. Uses the same Supabase project and GitHub OAuth credentials as local development. `SITE_URL` aligns with the Playwright origin (e.g. `http://127.0.0.1:4321`).
+  - **Production (Vercel)**: `.env.production` (same keys as `.env`, different values). Not to be commited. Vercel production should mirror these values. Uses a separate Supabase project and GitHub OAuth application, with `SITE_URL` set to the public domain.
+- Keep `env.d.ts` in sync if new variables are introduced.
+- Document the environment matrix in `README.md`, highlighting which variables differ between development/testing and production.
 
 ## 3. Project Adaptations for Vercel
 - Replace Node adapter with Vercel Serverless adapter:
@@ -35,34 +36,38 @@
 - Update documentation to reflect Vercel deployment requirements and environment variables.
 
 ## 4. Vercel Platform Setup
-- Create Vercel project linked to GitHub repo `kudo-space`.
-- Configure framework preset: Astro. Build command `npm run build`, install command `npm ci`, output left to adapter.
-- Set environment variables:
-  - Development (Vercel CLI/preview) mirrors local `.env.local` values pointed at the shared development/testing Supabase project.
-  - Preview: same as production for Supabase unless adding future staging DB.
-  - Production: production Supabase keys, production `SITE_URL` (e.g. `https://kudo-space.vercel.app` initially).
-- Define custom domain after DNS ready.
-- Enable Vercel Analytics if desired; optional.
-- For Supabase service role keys, restrict usage to server-side code only (Astro server routes) and never expose to client. Consider storing service role in Vercel encrypted env variables only when necessary.
+- Create a Vercel project linked to the GitHub repo `kudo-space`.
+- Configure framework preset: Astro. Build command `npm run build`, install command `npm ci`, output handled by the adapter.
+- Set environment variables per Vercel environment:
+  - **Development/Preview**: copy values from `.env`/`.env.test` so deployments continue using the shared development/testing Supabase project and GitHub OAuth app.
+  - **Production**: use `.env.production` values, pointing to the dedicated production Supabase project and GitHub OAuth app, with `SITE_URL` set to the live domain (e.g. `https://kudo-space.vercel.app`).
+- Define the custom domain after DNS is ready.
+- Enable Vercel Analytics only if needed.
+- Store Supabase service role keys exclusively in encrypted Vercel environment variables; never expose them to the client.
 
 ## 5. GitHub Actions Deployment Workflow
-- Prefer native Vercel Git/GitHub integration for automatic Preview + Production deployments on push.
-- Add GitHub Action for explicit control (e.g. manual deploy, nightly) using `vercel` CLI:
-  - Secrets required: `VERCEL_TOKEN` (personal/token), `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, plus environment-specific Supabase vars for test stage.
-  - Example workflow (`.github/workflows/vercel-deploy.yml`):
+- Keep Vercel's automatic Preview deployments for pull requests if desired, but require manual promotion for production.
+- Create a GitHub Action (`.github/workflows/vercel-deploy.yml`) that can only be triggered manually (`workflow_dispatch`) after changes land on the `master` branch.
+  - Secrets required: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, plus any Supabase credentials needed for build-time operations.
+  - Suggested job outline:
     ```yaml
-    name: Deploy to Vercel
+    name: Deploy Production
 
     on:
-      push:
-        branches: [main]
-      workflow_dispatch: {}
+      workflow_dispatch:
+        inputs:
+          ref:
+            description: Ref to deploy (defaults to master)
+            default: master
+            required: true
 
     jobs:
       deploy:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v4
+            with:
+              ref: ${{ inputs.ref }}
           - uses: actions/setup-node@v4
             with:
               node-version: 20
@@ -71,21 +76,14 @@
           - run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           - run: npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
     ```
-  - Configure Preview deployments via separate job triggered on pull requests (`vercel deploy --prebuilt`).
-  - Inject Supabase development/testing credentials in workflows dedicated to tests (e.g. before running Playwright).
+- Keep the Playwright workflow separate; it should load `.env.test` secrets from the GitHub `test` environment before running tests.
 
-## 6. End-to-End Test Integration Plan
-- Create GitHub Action workflow for E2E tests that:
-  - Spins up Preview deployment via `vercel deploy` or uses `astro dev` locally with env `.env.test`.
-  - Runs migrations/seed script against the shared development/testing Supabase project before tests to ensure deterministic fixtures.
-  - Executes Playwright suite (when available) with Supabase testing credentials and ephemeral Vercel deployment URL.
-  - Tears down resources if required (e.g. clean database using Supabase SQL script) to keep the shared testing dataset tidy.
+## 6. End-to-End Tests
+Already implemented and used in pull-request github actions workflow. Should not be modified.
 
 ## 7. Next Steps Checklist
-1. Install `@astrojs/vercel` and update `astro.config.mjs`; remove Node adapter.
-2. Update `.env.example` to include placeholders for Vercel and Supabase testing secrets (VERCEL_TOKEN, ORG_ID, PROJECT_ID, SUPABASE_TEST_*).
-3. Create `.env.local` template for local dev and document usage.
-4. Configure Supabase projects: ensure production project has RLS policies ready for production; seed the shared development/testing project for local and E2E scenarios.
-5. Create Vercel project, connect repo, set environment variables for Development/Preview/Production.
-6. Add GitHub Actions workflow for Vercel deployment and, later, separate workflow for E2E tests using the shared testing Supabase project.
-7. Update README with deployment instructions, environment matrix, and Supabase project IDs.
+1. Install `@astrojs/vercel` and update `astro.config.mjs`; remove the Node adapter once verified.
+2. Ensure `.env.example` and `.env.test.example` remain aligned with the actual `.env` and `.env.test` files. Add `.env.production` guidance where appropriate.
+3. Document the shared development/testing Supabase project and GitHub OAuth app, plus the separate production counterparts, in `README.md`.
+4. Create or update the manual `workflow_dispatch` deployment workflow targeting the `master` branch.
+5. Set up Vercel environment variables for Development/Preview (shared project) and Production (dedicated project), including any needed analytics or feature flags.
