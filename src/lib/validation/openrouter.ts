@@ -7,7 +7,7 @@ import { z } from "zod";
 export const openRouterConfigSchema = z.object({
   apiKey: z.string().min(1, "OPENROUTER_API_KEY is required"),
   apiUrl: z.string().url("OPENROUTER_API_URL must be a valid URL").default("https://openrouter.ai/api/v1"),
-  defaultModel: z.string().default("meta-llama/llama-3.3-8b-instruct:free"),
+  defaultModel: z.string().default("meta-llama/llama-3.3-70b-instruct:free"),
   timeoutMs: z.number().int().positive().default(30000),
 });
 
