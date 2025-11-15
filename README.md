@@ -1,6 +1,6 @@
 # KudoSpace
 
-> A simple, visible way for team members to show appreciation for each other
+> A simple, visible way for team members to show appreciation for each other.
 
 ## 📋 Table of Contents
 
