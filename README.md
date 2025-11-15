@@ -1,6 +1,6 @@
 # KudoSpace
 
-> A simple, visible way for team members to show appreciation for each other.
+A simple, visible way for team members to show appreciation for each other.
 
 ## 📋 Table of Contents
 
@@ -169,5 +169,3 @@ Use the combination of vercel secrets and github action secrets. Use The github 
 This project is licensed under the terms specified in the repository. Please refer to the LICENSE file for more information.
 
 ---
-
-**Built with ❤️ for remote teams**
