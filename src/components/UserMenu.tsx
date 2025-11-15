@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.tsx";
+import { Button } from "./ui/button.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,15 +36,18 @@ export const UserMenu = ({ userName, userAvatar }: UserMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          aria-label="User menu"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="flex size-9 items-center justify-center rounded-full border border-border transition-none hover:bg-accent"
+          aria-label="Open user menu"
         >
-          <Avatar className="size-8 cursor-pointer">
+          <Avatar className="size-8">
             <AvatarImage src={userAvatar ?? undefined} alt={userName} />
             <AvatarFallback className="text-xs">{getInitials(userName)}</AvatarFallback>
           </Avatar>
-        </button>
+          <span className="sr-only">{`Profile menu for ${userName}`}</span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
