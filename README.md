@@ -1,6 +1,6 @@
 # KudoSpace
 
-A simple, visible way for team members to show appreciation for each other.
+A simple, visible way for team members to show appreciation for each other. This was my certification project at [10xDevs course](https://www.10xdevs.pl/).
 
 ## 📋 Table of Contents
 
@@ -60,6 +60,13 @@ KudoSpace creates a centralized and visible platform for sharing praise, enablin
 
 - **GitHub Actions** - automated testing and quality checks
 - **Vercel** - preview and production hosting
+
+## Examples:
+
+![Kudo board showing recent messages](docs/screenshots/board.png)
+
+![Create kudo modal with AI prompt helper](docs/screenshots/create_kudo.png)
+
 
 ## 🚀 Getting Started Locally
 
